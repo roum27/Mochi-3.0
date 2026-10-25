@@ -256,6 +256,17 @@ Fresh Fedora GNOME/Wayland/XWayland QA:
 - [ ] `MOCHI_LANGUAGE=en` on a French system restores all-English copy
 - [ ] Speech still respects speech_enabled, quiet mode, and presentation priority in French
 
+## Cinnamon Helper
+
+- [ ] After `./install.sh` on Cinnamon, "Mochi Desktop Activity" is enabled in System Settings → Extensions without logging out
+- [ ] Typing in a terminal or editor produces typing reactions; mouse movement alone does not
+- [ ] Two minutes idle → idle/sleepy behavior; first input afterwards → return
+- [ ] Nemo focus → file-browsing reactions; foreground YouTube → media quiet behavior
+- [ ] `Ctrl+Alt+E` opens the Emote Catalogue; `Ctrl+Alt+Shift+M` opens Mochi Lab
+- [ ] Disabling the extension in System Settings leaves Mochi running with reduced awareness and no errors in `~/.xsession-errors`
+- [ ] Re-running `./install.sh` reloads the helper and keeps other enabled extensions
+- [ ] `mochi-uninstall` removes the helper and keeps other enabled extensions
+
 ## Release Gate
 
 - [ ] Relevant focused tests pass

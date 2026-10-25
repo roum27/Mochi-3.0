@@ -21,6 +21,11 @@ GNOME Shell helper
 → AmbiSense decides whether to react
 ```
 
+On Cinnamon (Linux Mint), `cinnamon-extension/mochi-activity@miflow13` plays
+the GNOME Shell helper's role. It owns the same D-Bus name and emits the same
+signals with the same privacy reductions, built on Muffin's idle monitor and
+last-input-device type. Mochi's Python side cannot tell the two apart.
+
 The result may be speech, a contextual activity, a state transition, or no
 visible response. Repeated detection of an already-active context must not
 continuously restart its presentation.

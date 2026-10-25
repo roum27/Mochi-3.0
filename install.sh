@@ -138,8 +138,24 @@ EOF
 }
 
 show_ready_notice() {
+    local desktop_name="GNOME"
+    if $IS_CINNAMON; then
+        desktop_name="Cinnamon"
+    fi
     printf '\n%s%s✓ Mochi is ready.%s\n' "$GREEN" "$BOLD" "$RESET"
-    printf '%sGNOME desktop awareness is active in this session.%s\n' "$DIM" "$RESET"
+    printf '%s%s desktop awareness is active in this session.%s\n' "$DIM" "$desktop_name" "$RESET"
+}
+
+wait_for_cinnamon_helper() {
+    # Cinnamon loads a newly enabled extension asynchronously.
+    local attempt
+    for attempt in 1 2 3 4 5 6 7 8 9 10 11 12; do
+        if helper_is_active; then
+            return 0
+        fi
+        sleep 0.25
+    done
+    return 1
 }
 
 install_launcher() {
@@ -240,6 +256,12 @@ install_integrations() {
             warn "GNOME extension tools were not found; skipping Mochi's optional awareness helper."
             warn "Mochi can still run, but GNOME-specific contextual reactions and global shortcuts will be limited."
         fi
+    elif $IS_CINNAMON; then
+        step "Installing Mochi's Cinnamon helper"
+        CINNAMON_HELPER_ATTEMPTED=true
+        if ! bash "$ROOT/scripts/install-cinnamon-extension.sh"; then
+            warn "Mochi's Cinnamon helper could not be installed; Mochi will run with reduced awareness."
+        fi
     else
         step "Skipping GNOME helper"
         warn "Non-GNOME desktop detected; installing Mochi without the optional GNOME awareness helper."
@@ -291,7 +313,15 @@ show_install_complete() {
     printf '%sUpdate:%s      %s\n' "$CYAN" "$RESET" "$UPDATE_LAUNCHER"
     printf '%sUninstall:%s   %s\n' "$CYAN" "$RESET" "$UNINSTALL_LAUNCHER"
 
-    if helper_is_active; then
+    if $CINNAMON_HELPER_ATTEMPTED; then
+        if wait_for_cinnamon_helper; then
+            show_ready_notice
+        else
+            printf '\n'
+            warn "Cinnamon has not started Mochi's helper yet."
+            printf 'Check System Settings → Extensions → "Mochi Desktop Activity". Mochi connects to it automatically.\n'
+        fi
+    elif helper_is_active; then
         show_ready_notice
     elif $IS_GNOME && $GNOME_HELPER_INSTALLABLE && $GNOME_HELPER_ATTEMPTED; then
         show_gnome_reload_notice
@@ -306,10 +336,14 @@ show_install_complete() {
 banner
 
 IS_GNOME=false
+IS_CINNAMON=false
 GNOME_HELPER_INSTALLABLE=false
 GNOME_HELPER_ATTEMPTED=false
+CINNAMON_HELPER_ATTEMPTED=false
 desktop="${XDG_CURRENT_DESKTOP:-} ${XDG_SESSION_DESKTOP:-} ${DESKTOP_SESSION:-}"
-if [[ "${desktop,,}" == *gnome* ]]; then
+if [[ "${desktop,,}" == *cinnamon* ]]; then
+    IS_CINNAMON=true
+elif [[ "${desktop,,}" == *gnome* ]]; then
     IS_GNOME=true
 fi
 

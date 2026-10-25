@@ -25,6 +25,32 @@ def _link_system_tool(bin_dir: Path, name: str) -> None:
     (bin_dir / name).symlink_to(target)
 
 
+CINNAMON_UUID = "mochi-activity@miflow13"
+
+
+def _write_gsettings(bin_dir: Path) -> None:
+    # Keeps org.cinnamon enabled-extensions in a file so tests never touch the
+    # developer's real desktop settings.
+    _write_executable(
+        bin_dir / "gsettings",
+        """#!/bin/bash
+set -eu
+state="$MOCHI_TEST_LOG_DIR/enabled-extensions"
+[[ -f "$state" ]] || printf '%s' "${FAKE_CINNAMON_ENABLED:-@as []}" > "$state"
+case "$1" in
+    get)
+        cat "$state"
+        printf '\n'
+        ;;
+    set)
+        printf '%s\n' "$4" >> "$MOCHI_TEST_LOG_DIR/gsettings.log"
+        printf '%s' "$4" > "$state"
+        ;;
+esac
+""",
+    )
+
+
 def _make_toolbox(
     tmp_path: Path,
     *,
@@ -116,6 +142,7 @@ exec "$@"
 printf '(false,)\n'
 """,
     )
+    _write_gsettings(bin_dir)
     _write_executable(
         bin_dir / "glib-compile-schemas",
         """#!/bin/bash
@@ -226,6 +253,7 @@ def _run_installer(
     package_manager: str = "dnf",
     apt_missing: tuple[str, ...] = (),
     apt_available: tuple[str, ...] = (),
+    cinnamon_enabled: str = "@as []",
     build_tools_ready: bool = True,
     wheel_ready: bool = True,
     project_install_ready: bool = True,
@@ -271,6 +299,7 @@ def _run_installer(
             "MOCHI_TEST_LOG_DIR": str(log_dir),
             "FAKE_APT_MISSING": " ".join(apt_missing),
             "FAKE_APT_AVAILABLE": " ".join(apt_available),
+            "FAKE_CINNAMON_ENABLED": cinnamon_enabled,
             "FAKE_BUILD_TOOLS_READY": "1" if build_tools_ready else "0",
             "FAKE_WHEEL_READY": "1" if wheel_ready else "0",
             "FAKE_PROJECT_INSTALL_READY": "1" if project_install_ready else "0",
@@ -454,6 +483,59 @@ def test_install_summary_names_the_applications_menu(tmp_path: Path) -> None:
     assert "app grid" not in result.stdout
 
 
+def test_cinnamon_installs_and_enables_the_cinnamon_helper(tmp_path: Path) -> None:
+    result, log_dir = _run_installer(
+        tmp_path,
+        current_desktop="X-Cinnamon",
+        session_desktop="cinnamon",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    installed = (
+        tmp_path / "home" / ".local" / "share" / "cinnamon" / "extensions" / CINNAMON_UUID
+    )
+    for name in ("metadata.json", "extension.js", "README.md"):
+        assert (installed / name).is_file(), name
+    assert _read_log(log_dir, "gsettings.log").splitlines() == [f"['{CINNAMON_UUID}']"]
+    assert "Installing Mochi's Cinnamon helper" in result.stdout
+    assert "Skipping GNOME helper" not in result.stdout
+    assert not (log_dir / "gnome-extensions.log").exists()
+    assert "Cinnamon has not started Mochi's helper yet" in result.stderr
+
+
+def test_cinnamon_keeps_other_extensions_and_reloads_an_enabled_helper(
+    tmp_path: Path,
+) -> None:
+    result, log_dir = _run_installer(
+        tmp_path,
+        current_desktop="X-Cinnamon",
+        cinnamon_enabled=f"['transparent-panels@germanfr', '{CINNAMON_UUID}']",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _read_log(log_dir, "gsettings.log").splitlines() == [
+        "['transparent-panels@germanfr']",
+        f"['transparent-panels@germanfr', '{CINNAMON_UUID}']",
+    ]
+
+
+@pytest.mark.parametrize("desktop", ["GNOME", "niri", "KDE"])
+def test_other_desktops_never_install_the_cinnamon_helper(
+    tmp_path: Path,
+    desktop: str,
+) -> None:
+    result, log_dir = _run_installer(
+        tmp_path,
+        current_desktop=desktop,
+        with_gnome_extensions=desktop == "GNOME",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert not (log_dir / "gsettings.log").exists()
+    assert not (tmp_path / "home" / ".local" / "share" / "cinnamon").exists()
+    assert "Cinnamon" not in result.stdout + result.stderr
+
+
 def test_installer_reuses_compatible_private_venv_build_tools(tmp_path: Path) -> None:
     result, log_dir = _run_installer(
         tmp_path,
@@ -615,6 +697,8 @@ def test_uninstaller_removes_every_launcher(tmp_path: Path) -> None:
         _write_executable(bin_dir / name, "#!/bin/bash\nexit 0\n")
     env = {
         "PATH": "/usr/bin:/bin",
+        # Never let the uninstaller reach the developer's real dconf settings.
+        "GSETTINGS_BACKEND": "memory",
         "HOME": str(home),
         "USER": "mochi-test",
         "XDG_DATA_HOME": str(home / ".local" / "share"),
@@ -632,6 +716,42 @@ def test_uninstaller_removes_every_launcher(tmp_path: Path) -> None:
     assert result.returncode == 0, result.stdout + result.stderr
     for name in names:
         assert not (bin_dir / name).exists(), name
+
+
+def test_uninstaller_disables_and_removes_only_mochis_cinnamon_helper(
+    tmp_path: Path,
+) -> None:
+    home = tmp_path / "home"
+    bin_dir = tmp_path / "bin"
+    log_dir = tmp_path / "logs"
+    bin_dir.mkdir()
+    log_dir.mkdir()
+    _write_gsettings(bin_dir)
+    extension = home / ".local" / "share" / "cinnamon" / "extensions" / CINNAMON_UUID
+    extension.mkdir(parents=True)
+    (extension / "extension.js").write_text("", encoding="utf-8")
+    env = {
+        "PATH": f"{bin_dir}:/usr/bin:/bin",
+        "GSETTINGS_BACKEND": "memory",
+        "HOME": str(home),
+        "USER": "mochi-test",
+        "XDG_DATA_HOME": str(home / ".local" / "share"),
+        "XDG_CONFIG_HOME": str(home / ".config"),
+        "MOCHI_TEST_LOG_DIR": str(log_dir),
+        "FAKE_CINNAMON_ENABLED": f"['a@x', '{CINNAMON_UUID}', 'b@y']",
+    }
+
+    result = subprocess.run(
+        ["bash", str(ROOT / "uninstall.sh")],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert _read_log(log_dir, "gsettings.log").splitlines() == ["['a@x', 'b@y']"]
+    assert not extension.exists()
 
 
 def test_normal_install_writes_installed_build_metadata(tmp_path: Path) -> None:

@@ -25,6 +25,13 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
   `MOCHI_LANGUAGE=en` or `MOCHI_LANGUAGE=fr` to choose explicitly. Mochi Lab
   developer tools and the updater window stay in English.
 
+- On Linux Mint (Cinnamon), the installer now installs and enables a Cinnamon
+  version of Mochi's awareness helper, so he reacts to typing, idle/return,
+  apps, file browsing, and focused YouTube, and `Ctrl+Alt+E` opens the Emote
+  Catalogue. Cinnamon loads it right away; no logout needed. It sends Mochi
+  the same content-free signals as the GNOME helper: never keys, text,
+  window titles, file names, or paths.
+
 ### Changed
 
 - `./install.sh` now installs Mochi's system packages with `apt` on Linux

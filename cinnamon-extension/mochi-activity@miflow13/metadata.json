@@ -1,0 +1,10 @@
+{
+  "uuid": "mochi-activity@miflow13",
+  "name": "Mochi Desktop Activity",
+  "description": "Sends privacy-safe activity signals to Mochi and owns Mochi's privacy-safe global shortcuts. No typed content, key identity, file name, or path is transmitted.",
+  "url": "https://github.com/miflow13/mochi-desktop",
+  "cinnamon-version": [
+    "6.0"
+  ],
+  "version": 1
+}

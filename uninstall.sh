@@ -13,6 +13,8 @@ AGENT_SIGNAL_LAUNCHER="$HOME/.local/bin/mochi-agent-signal"
 DESKTOP_FILE="$DATA_HOME/applications/$APP_ID.desktop"
 ICON_FILE="$DATA_HOME/icons/hicolor/256x256/apps/$APP_ID.png"
 EXTENSION_DIR="$DATA_HOME/gnome-shell/extensions/$EXTENSION_UUID"
+CINNAMON_EXTENSION_UUID="mochi-activity@miflow13"
+CINNAMON_EXTENSION_DIR="$DATA_HOME/cinnamon/extensions/$CINNAMON_EXTENSION_UUID"
 AUTOSTART_FILE="$CONFIG_HOME/autostart/mochi-enable-gnome-helper-once.desktop"
 PURGE=false
 
@@ -35,8 +37,27 @@ if command -v gnome-extensions >/dev/null 2>&1; then
     gnome-extensions disable "$EXTENSION_UUID" >/dev/null 2>&1 || true
 fi
 
+# Drop Mochi's Cinnamon helper from the enabled list, keeping every other entry.
+if command -v gsettings >/dev/null 2>&1 \
+    && enabled="$(gsettings get org.cinnamon enabled-extensions 2>/dev/null)" \
+    && [[ "$enabled" == *"'$CINNAMON_EXTENSION_UUID'"* ]]; then
+    kept=""
+    enabled="${enabled#@as }"
+    enabled="${enabled#[}"
+    enabled="${enabled%]}"
+    IFS=',' read -ra entries <<< "$enabled"
+    for entry in "${entries[@]}"; do
+        entry="${entry#"${entry%%[![:space:]]*}"}"
+        entry="${entry%"${entry##*[![:space:]]}"}"
+        if [[ -n "$entry" && "$entry" != "'$CINNAMON_EXTENSION_UUID'" ]]; then
+            kept+="${kept:+, }$entry"
+        fi
+    done
+    gsettings set org.cinnamon enabled-extensions "[$kept]" >/dev/null 2>&1 || true
+fi
+
 rm -f "$LAUNCHER" "$UPDATE_LAUNCHER" "$UNINSTALL_LAUNCHER" "$AGENT_SIGNAL_LAUNCHER" "$DESKTOP_FILE" "$ICON_FILE" "$AUTOSTART_FILE"
-rm -rf "$EXTENSION_DIR"
+rm -rf "$EXTENSION_DIR" "$CINNAMON_EXTENSION_DIR"
 
 echo "If you set up Agent Companion hooks, remove them from ~/.claude/settings.json and ~/.codex/hooks.json."
 

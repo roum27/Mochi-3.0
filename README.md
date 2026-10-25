@@ -345,9 +345,11 @@ modify a developer checkout.
 Linux Mint 22 Cinnamon runs an X11 session, so Mochi uses its regular X11
 window path. `./install.sh` installs any missing packages with `apt` (it asks
 for your password only if something is missing), then launch Mochi from the
-Cinnamon menu. The GNOME awareness helper is skipped, so typing/idle reactions
-and the global shortcuts below are unavailable on Cinnamon; everything else,
-including the right-click menu, works.
+Cinnamon menu. On Cinnamon the installer also installs and enables Mochi's
+Cinnamon awareness helper (System Settings → Extensions → "Mochi Desktop
+Activity"). Cinnamon loads it immediately, so typing, idle/return, app, file
+browsing, and YouTube reactions plus the global shortcuts below work without
+logging out.
 
 ### Fedora with Niri
 
@@ -386,7 +388,7 @@ tools and the updater window stay in English.
 | `Ctrl + Alt + E` | Open the Emote Catalogue |
 | `Ctrl + Alt + Shift + M` | Open Mochi Lab developer controls |
 
-Global shortcuts require the GNOME helper.
+Global shortcuts require the GNOME or Cinnamon helper.
 
 ---
 
@@ -399,7 +401,8 @@ Global shortcuts require the GNOME helper.
 - Mochi uses an XWayland GTK window on GNOME Wayland for reliable desktop
   positioning.
 - **Linux Mint 22 (Cinnamon, X11):** automatic dependency installation via
-  `apt`; runs without the GNOME helper.
+  `apt`, plus a Cinnamon awareness helper with the same signals and shortcuts
+  as the GNOME one.
 - Other distributions may work, but automatic dependency installation currently
   supports Fedora and Debian/Ubuntu/Linux Mint. Mochi's installer no longer requires Fedora's Python build
   packages to provide the local setuptools build backend.
