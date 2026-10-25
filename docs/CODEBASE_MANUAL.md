@@ -1915,21 +1915,19 @@ If you are brand new, read in this order:
 
 1. README.md
 2. docs/CODEBASE_MANUAL.md
-3. docs/wiki/Architecture-and-Tech-Stack.md
-4. src/mochi/main.py
-5. src/mochi/app.py
-6. src/mochi/state.py
-7. src/mochi/state_controller.py
-8. src/mochi/behavior.py
-9. src/mochi/animation.py
-10. src/mochi/buddy.py
-11. src/mochi/presence/click_dialogue.py to understand the production composition
-12. src/mochi/ambient_activity.py
-13. docs/ambisense.md
-14. the feature module you are changing
-15. its tests
-16. REGRESSION_WATCHLIST.md
-17. docs/wiki/Troubleshooting-and-Regressions.md
+3. src/mochi/main.py
+4. src/mochi/app.py
+5. src/mochi/state.py
+6. src/mochi/state_controller.py
+7. src/mochi/behavior.py
+8. src/mochi/animation.py
+9. src/mochi/buddy.py
+10. src/mochi/presence/click_dialogue.py to understand the production composition
+11. src/mochi/ambient_activity.py
+12. docs/ambisense.md
+13. the feature module you are changing
+14. its tests
+15. REGRESSION_WATCHLIST.md
 
 Do not begin by reading every presence mixin linearly. First understand Buddy, state ownership, animation ownership, and cooperative super() behavior.
 
@@ -1950,6 +1948,7 @@ Do not begin by reading every presence mixin linearly. First understand Buddy, s
 | Context menu | src/mochi/buddy_menu.py |
 | Typing/video/files ambient behavior | src/mochi/ambient_activity.py |
 | GNOME semantic signals | gnome-extension/mochi-typing@miflow13/ |
+| Cinnamon semantic signals | cinnamon-extension/mochi-activity@miflow13/ |
 | AmbiSense speech/context | src/mochi/presence/integration.py, presence/engine.py |
 | Terminal coworking | presence/terminal_cowork.py |
 | Music dance | presence/music_dance.py |
@@ -1960,7 +1959,7 @@ Do not begin by reading every presence mixin linearly. First understand Buddy, s
 | Focus GTK/runtime | presence/focus_session.py |
 | Sounds | sound.py, assets/audio/ |
 | Saved preferences | config.py |
-| Regression history | docs/wiki/Troubleshooting-and-Regressions.md |
+| Regression history | CHANGELOG.md, REGRESSION_WATCHLIST.md |
 | Merge confidence | REGRESSION_WATCHLIST.md |
 
 ---
@@ -2208,7 +2207,7 @@ When documentation and implementation disagree:
 3. update the manual on the feature/fix branch;
 4. mention environment-dependent behavior that still needs Fedora/Wayland QA.
 
-For major architecture changes, update both this manual and the narrower wiki page that owns the topic rather than allowing two contradictory explanations to survive.
+For major architecture changes, update this manual (and docs/ambisense.md or the feature spec that owns the topic) rather than allowing two contradictory explanations to survive.
 
 ---
 

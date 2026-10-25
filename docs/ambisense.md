@@ -124,4 +124,5 @@ contextual state.
 Ambient awareness degrades gracefully. If a helper or signal source is
 unavailable, Mochi continues to function with reduced contextual behavior.
 
-For setup and diagnosis, see [Troubleshooting and Regressions](wiki/Troubleshooting-and-Regressions.md).
+For setup and diagnosis, see the Troubleshooting section of the
+[README](../README.md#troubleshooting).

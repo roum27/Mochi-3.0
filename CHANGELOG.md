@@ -34,6 +34,14 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
 
 ### Changed
 
+- Slimmed the repository for Mochi 3.0. Removed:
+  - the original project's website, Artist Kit, contribution templates, and
+    funding links;
+  - the Deskling SDK manifest, the old wiki and design exports, and outdated
+    feature notes.
+
+  The README is rewritten for this fork, and `AGENTS.md` is merged into
+  `CLAUDE.md`.
 - Mochi's updater now checks and downloads from this fork
   (`roum27/Mochi-3.0`) instead of the original `miflow13/mochi-desktop`, so
   an update can never replace this version with upstream.

@@ -1,29 +1,9 @@
-# Documentation
+# Mochi 3.0 documentation
 
-Mochi's root README is intentionally kept as the project front door. Deeper implementation notes, testing procedures, design decisions, and troubleshooting live here.
-
-## Start here
-
-- [Codebase Manual](CODEBASE_MANUAL.md) — deep contributor onboarding, runtime ownership, state/animation lifecycles, debugging, and common change recipes
-- [Getting Started](wiki/Getting-Started.md) — installation, first launch, and basic setup
-- [Architecture and Tech Stack](wiki/Architecture-and-Tech-Stack.md) — major components and runtime structure
-- [Interaction Core](wiki/Interaction-Core.md) — state and interaction behavior
-- [AmbiSense](ambisense.md) — local ambient-awareness flow and privacy model
-- [FR-10: Level Up Feedback](FR-10_LEVEL_UP_FEEDBACK.md) — authoritative v0.3 level-up presentation behavior
-- [FR-12: Focus With Mochi](FR-12_FOCUS_WITH_MOCHI.md) — focus-session behavior, rewards, and lifecycle
-- [Animation and Art Pipeline](wiki/Animation-and-Art-Pipeline.md) — sprite and animation workflow
-- [Development and Testing](wiki/Development-and-Testing.md) — development workflow and verification
-- [Troubleshooting and Regressions](wiki/Troubleshooting-and-Regressions.md) — known failure modes and debugging notes
-- [Development snapshot (2026-09-08)](wiki/Current-Development-Status.md) — historical handoff; use the README, changelog, and issue #37 for current status
-- [Roadmap and Public Alpha](wiki/Roadmap-and-Public-Alpha.md) — project direction and alpha expectations
-- [Project Philosophy](wiki/Project-Philosophy.md) — product and character-design principles
-
-## Repository-level references
-
-- [Contributing](../CONTRIBUTING.md)
-- [Regression Watchlist](../REGRESSION_WATCHLIST.md)
+- [Codebase Manual](CODEBASE_MANUAL.md) — architecture, the five rules, state and animation model, release checks
+- [AmbiSense](ambisense.md) — ambient-awareness event flow and privacy model (GNOME and Cinnamon helpers)
+- [Agent Companion](agent-companion.md) — keeping Claude Code / Codex company
+- [Specs](superpowers/specs/) and [plans](superpowers/plans/) — one design and one implementation plan per feature
+- [Regression watchlist](../REGRESSION_WATCHLIST.md) — manual QA checklist
 - [Changelog](../CHANGELOG.md)
-- [Current alpha QA gate (#37)](https://github.com/miflow13/mochi-desktop/issues/37)
-- [Animation asset specification](../assets/mochi/README.md)
-
-Documentation should describe behavior that exists or an explicitly identified plan. When implementation changes, update the nearest relevant document instead of expanding the root README indefinitely.
+- [CLAUDE.md](../CLAUDE.md) — rules for working on this repository

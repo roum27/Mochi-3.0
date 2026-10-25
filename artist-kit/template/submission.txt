@@ -1,9 +1,0 @@
-Animation:
-Creator:
-Type: one-shot / loop / entry-loop-exit
-Source cell size:
-Intended FPS:
-Loop:
-Trigger idea:
-Description:
-Notes:

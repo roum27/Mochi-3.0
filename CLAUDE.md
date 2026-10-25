@@ -1,12 +1,78 @@
 # CLAUDE.md — Mochi 3.0
 
-**Read `AGENTS.md` first.** Its product rules, engineering rules, feature workflow (spec → plan → approval → test-first) and verification/final-report rules apply here unchanged. This file only adds what is specific to this fork.
+Mochi is a local-first Linux desktop companion: Python 3.11+, GTK4, PyGObject, Cairo.
 
-The maintainer speaks French (Québec, `LANG=fr_CA.UTF-8`). Reply in French. Code, comments, commits and docs stay in English, matching the repo.
+The maintainer speaks French (Québec, `LANG=fr_CA.UTF-8`). Reply in French. Code, comments, commits and docs stay in English.
 
 ## What this fork is
 
-`roum27/Mochi-3.0` is a fork of `miflow13/mochi-desktop` (the `origin` upstream, v0.4.1). The primary target here is **Linux Mint 22 + Cinnamon 6 + X11**, not Fedora/GNOME/Wayland. Keep GNOME and Fedora working anyway: every upstream test still has to pass.
+`roum27/Mochi-3.0` is a fork of `miflow13/mochi-desktop` (v0.4.1, MIT). The original's `AGENTS.md` was merged into this file on 2026-10-25.
+
+**Primary target:** Linux Mint 22 + Cinnamon 6 + X11. On X11, GDK is left alone.
+
+**GNOME and Fedora are still supported:**
+- Keep them working; every inherited test must still pass.
+- On GNOME Wayland, the whole process runs with `GDK_BACKEND=x11` (XWayland), set in `src/mochi/main.py`. Do not change that.
+
+## Read before changing runtime code
+
+- `docs/CODEBASE_MANUAL.md`, especially section 2, "The five rules":
+  - one behavior-state path through `Buddy._transition_to`;
+  - state is not animation;
+  - direct interaction outranks ambient behavior;
+  - every long-lived thing has an owner and a teardown;
+  - Mochi must always become interactable again.
+- The `REGRESSION_WATCHLIST.md` sections for every area you touch.
+- `docs/ambisense.md` for the privacy model.
+- `docs/superpowers/specs` and `docs/superpowers/plans` for the spec and plan format.
+
+## Product rules (non-negotiable)
+
+- **Local only.** New features make no network requests and add no telemetry. The only network use is the opt-in updater, which reaches this fork's GitHub repository and nothing else.
+- **No pressure.** No streaks, decay, penalties, or guilt-based copy.
+- **Easy to ignore.** New speech respects `speech_enabled`, quiet mode, and presentation priority.
+- **Privacy.**
+  - Never read typed content, window titles, document names, or clipboard contents unless the user explicitly hands them to Mochi.
+  - The desktop helpers may look at a title only to reduce it inside the shell, to a boolean or a digest.
+
+## Engineering rules
+
+- **One reviewable diff per task.** One task = one feature. No drive-by refactors, renames, or reformatting.
+- **No new runtime dependencies.** `pyproject.toml` has `dependencies = []`; PyGObject comes from the system. Pillow is dev-only, for `tools/`.
+- **Speech:**
+  - New speech goes through `PresenceEngine` (`src/mochi/presence/engine.py`). New code never calls the speech bubble directly.
+  - Never pass text that did not originate in Mochi's own source code to any `markup=` parameter.
+- **Lifecycle (Manual rule 4).** Every long-lived source — GLib timeout, signal handler, D-Bus subscription, settings watch, helper connection or hotkey — has one owner and is torn down on shutdown or `disable()`.
+- **Testability.**
+  - Keep logic GTK-free where possible, so it is testable without a display.
+  - Follow the existing injection patterns, such as `portal_factory` in `src/mochi/color_scheme.py` and the adapters in `src/mochi/presence/signals.py`.
+- **Protected areas.** Do not touch the updater, `src/mochi_launcher.py`, or GDK backend selection unless the task says so.
+
+## Workflow for feature tasks
+
+1. Read the relevant code and the docs above.
+2. Write a spec (`docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`) and a plan (`docs/superpowers/plans/YYYY-MM-DD-<slug>.md`) that match the existing files.
+3. Raise any disagreement with the task design at this point, not mid-implementation.
+   - Wait for approval, unless the maintainer has already said to go ahead. They usually say "fait tout" and want a short briefing at the end.
+   - Ask before deleting files or making large or outward-facing changes, such as a push or a release.
+4. Test-first, small commits. One branch per feature (`claude/<slug>`), fast-forwarded into `main`.
+
+## Verification and the final report
+
+- **Tests:** run `python3 -m pytest -q` and report the actual summary line.
+- **Desktop QA:**
+  - Never claim that desktop or visual QA passed.
+  - You can verify helpers over D-Bus and in the logs (see Commands).
+  - List exact manual QA steps for the maintainer instead.
+- **Docs:** user-facing changes update `CHANGELOG.md` (Unreleased), `README.md` if usage or controls change, and `REGRESSION_WATCHLIST.md`.
+- **Final report:** a short French briefing covering:
+  - a summary;
+  - files changed;
+  - tests added;
+  - the test result;
+  - what is unverified;
+  - risks;
+  - follow-ups you noticed but did not do.
 
 Fork additions, one feature per commit with a spec and plan in `docs/superpowers/` dated 2026-10-25:
 
@@ -67,7 +133,7 @@ Fork additions, one feature per commit with a spec and plan in `docs/superpowers
 
 ## Commands
 
-- **Tests:** `python3 -m pytest -q`. pytest is not a system package on Mint; use a venv created with `--system-site-packages` so `gi` stays importable. Current baseline: 1432 passed, 6 skipped.
+- **Tests:** `python3 -m pytest -q`. pytest is not a system package on Mint; use a venv created with `--system-site-packages` so `gi` stays importable. Current baseline: see the last commit message or run the suite.
 - **Install locally:** `./install.sh`. Uninstall with `mochi-uninstall`.
 - **Inspect the live Cinnamon session** (read-only probes; remove anything you attach):
   - `gdbus call --session --dest org.Cinnamon --object-path /org/Cinnamon --method org.Cinnamon.Eval '<js>'`
