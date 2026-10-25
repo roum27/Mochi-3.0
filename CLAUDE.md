@@ -133,7 +133,7 @@ Fork additions, one feature per commit with a spec and plan in `docs/superpowers
 
 ## Commands
 
-- **Tests:** `python3 -m pytest -q`. pytest is not a system package on Mint; use a venv created with `--system-site-packages` so `gi` stays importable. Current baseline: see the last commit message or run the suite.
+- **Tests:** `.venv/bin/python -m pytest -q`. The repo `.venv` is gitignored. Create it with `python3 -m venv --system-site-packages .venv && .venv/bin/pip install -e . pytest`; `--system-site-packages` keeps `gi` importable, and pytest is not a system package on Mint. Baseline: 1429 passed, 6 skipped.
 - **Install locally:** `./install.sh`. Uninstall with `mochi-uninstall`.
 - **Inspect the live Cinnamon session** (read-only probes; remove anything you attach):
   - `gdbus call --session --dest org.Cinnamon --object-path /org/Cinnamon --method org.Cinnamon.Eval '<js>'`
