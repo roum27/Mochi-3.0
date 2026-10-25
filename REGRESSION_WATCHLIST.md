@@ -243,6 +243,8 @@ Fresh Fedora GNOME/Wayland/XWayland QA:
 - [ ] Update bootstrap/temp workspaces are cleaned after success, failure, or cancellation
 - [ ] GNOME helper refresh notice remains informative and non-blocking
 - [ ] Updated Mochi relaunches from the updater and from the GNOME app grid
+- [ ] Linux Mint Cinnamon: `./install.sh` lists only missing apt packages, never runs `sudo` when nothing is missing, and Mochi launches from the Cinnamon menu
+- [ ] Linux Mint Cinnamon: drag, right-click menu, and stay-on-top across workspaces work on the X11 path
 - [ ] `mochi-update` and in-app updating use the same exact-target transaction path
 
 ## Release Gate

@@ -287,7 +287,7 @@ EOF
 show_install_complete() {
     step "Installation complete"
     printf '%sLaunch:%s      %s\n' "$CYAN" "$RESET" "$LAUNCHER"
-    printf '%sApplication:%s GNOME app grid → Mochi\n' "$CYAN" "$RESET"
+    printf '%sApplication:%s applications menu → Mochi\n' "$CYAN" "$RESET"
     printf '%sUpdate:%s      %s\n' "$CYAN" "$RESET" "$UPDATE_LAUNCHER"
     printf '%sUninstall:%s   %s\n' "$CYAN" "$RESET" "$UNINSTALL_LAUNCHER"
 
@@ -350,8 +350,47 @@ if command -v dnf >/dev/null 2>&1 && command -v rpm >/dev/null 2>&1; then
         step "Checking Fedora dependencies"
         ok "Required Fedora packages are already installed"
     fi
+elif command -v apt-get >/dev/null 2>&1 && command -v dpkg-query >/dev/null 2>&1; then
+    # Debian, Ubuntu, and Linux Mint. Debian splits ensurepip into
+    # python3-venv, and Cairo drawing through PyGObject needs python3-gi-cairo.
+    packages=(
+        python3
+        python3-venv
+        python3-gi
+        python3-gi-cairo
+        python3-cairo
+        gir1.2-gtk-4.0
+        gir1.2-gstreamer-1.0
+        gstreamer1.0-plugins-base
+        gir1.2-atspi-2.0
+        libx11-6
+        pipewire-bin
+        libglib2.0-bin
+    )
+    # Layer shell is optional at runtime and absent from older archives
+    # (Ubuntu 24.04 / Linux Mint 22), so only ask for it when apt offers it.
+    if apt-cache show gir1.2-gtk4layershell-1.0 >/dev/null 2>&1; then
+        packages+=(gir1.2-gtk4layershell-1.0)
+    fi
+    if $IS_GNOME; then
+        packages+=(gnome-shell)
+    fi
+    missing=()
+    for package in "${packages[@]}"; do
+        if [[ "$(dpkg-query -W -f='${Status}' "$package" 2>/dev/null || true)" != "install ok installed" ]]; then
+            missing+=("$package")
+        fi
+    done
+
+    if ((${#missing[@]})); then
+        step "Installing Debian/Ubuntu dependencies"
+        sudo apt-get install -y "${missing[@]}"
+    else
+        step "Checking Debian/Ubuntu dependencies"
+        ok "Required Debian/Ubuntu packages are already installed"
+    fi
 else
-    warn "Automatic dependency installation currently supports Fedora only."
+    warn "Automatic dependency installation currently supports Fedora and Debian/Ubuntu/Linux Mint."
     warn "Continuing with the packages already available on this system."
 fi
 

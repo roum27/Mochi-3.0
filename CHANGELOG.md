@@ -19,6 +19,13 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
   files, commands, or its replies, and Mochi makes no network requests. See
   [Agent Companion](docs/agent-companion.md) for setup.
 
+### Changed
+
+- `./install.sh` now installs Mochi's system packages with `apt` on Linux
+  Mint, Ubuntu, and Debian, asking for your password only when something is
+  missing. The install summary now points at your applications menu instead
+  of the GNOME app grid.
+
 ## 0.4.1 — Stabilization & Portability
 
 Mochi notices where your attention goes, and stays animated and updatable

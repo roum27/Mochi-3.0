@@ -29,6 +29,7 @@ def _make_toolbox(
     tmp_path: Path,
     *,
     with_gnome_extensions: bool,
+    package_manager: str = "dnf",
 ) -> tuple[Path, Path]:
     bin_dir = tmp_path / "bin"
     log_dir = tmp_path / "logs"
@@ -52,22 +53,63 @@ def _make_toolbox(
     ):
         _link_system_tool(bin_dir, name)
 
-    _write_executable(
-        bin_dir / "rpm",
-        """#!/bin/bash
+    if package_manager == "dnf":
+        _write_executable(
+            bin_dir / "rpm",
+            """#!/bin/bash
 set -eu
 printf '%s\n' "$*" >> "$MOCHI_TEST_LOG_DIR/rpm.log"
 exit 0
 """,
-    )
-    _write_executable(
-        bin_dir / "dnf",
-        """#!/bin/bash
+        )
+        _write_executable(
+            bin_dir / "dnf",
+            """#!/bin/bash
 set -eu
 printf '%s\n' "$*" >> "$MOCHI_TEST_LOG_DIR/dnf.log"
 exit 0
 """,
-    )
+        )
+    elif package_manager == "apt":
+        _write_executable(
+            bin_dir / "dpkg-query",
+            """#!/bin/bash
+set -eu
+package="${!#}"
+printf '%s\n' "$package" >> "$MOCHI_TEST_LOG_DIR/dpkg-query.log"
+if [[ " $FAKE_APT_MISSING " == *" $package "* ]]; then
+    exit 1
+fi
+printf 'install ok installed'
+""",
+        )
+        _write_executable(
+            bin_dir / "apt-cache",
+            """#!/bin/bash
+set -eu
+package="${!#}"
+if [[ " $FAKE_APT_AVAILABLE " == *" $package "* ]]; then
+    exit 0
+fi
+exit 100
+""",
+        )
+        _write_executable(
+            bin_dir / "apt-get",
+            """#!/bin/bash
+set -eu
+printf '%s\n' "$*" >> "$MOCHI_TEST_LOG_DIR/apt-get.log"
+exit 0
+""",
+        )
+        _write_executable(
+            bin_dir / "sudo",
+            """#!/bin/bash
+set -eu
+printf '%s\n' "$*" >> "$MOCHI_TEST_LOG_DIR/sudo.log"
+exec "$@"
+""",
+        )
     _write_executable(
         bin_dir / "gdbus",
         """#!/bin/bash
@@ -181,6 +223,9 @@ def _run_installer(
     session_desktop: str = "",
     desktop_session: str = "",
     with_gnome_extensions: bool = False,
+    package_manager: str = "dnf",
+    apt_missing: tuple[str, ...] = (),
+    apt_available: tuple[str, ...] = (),
     build_tools_ready: bool = True,
     wheel_ready: bool = True,
     project_install_ready: bool = True,
@@ -192,6 +237,7 @@ def _run_installer(
     bin_dir, log_dir = _make_toolbox(
         tmp_path,
         with_gnome_extensions=with_gnome_extensions,
+        package_manager=package_manager,
     )
     home = tmp_path / "home"
     home.mkdir()
@@ -223,6 +269,8 @@ def _run_installer(
             "DESKTOP_SESSION": desktop_session,
             "NO_COLOR": "1",
             "MOCHI_TEST_LOG_DIR": str(log_dir),
+            "FAKE_APT_MISSING": " ".join(apt_missing),
+            "FAKE_APT_AVAILABLE": " ".join(apt_available),
             "FAKE_BUILD_TOOLS_READY": "1" if build_tools_ready else "0",
             "FAKE_WHEEL_READY": "1" if wheel_ready else "0",
             "FAKE_PROJECT_INSTALL_READY": "1" if project_install_ready else "0",
@@ -315,6 +363,95 @@ def test_gnome_without_extension_tooling_degrades_without_logout_advice(
     assert "skipping Mochi's optional awareness helper" in output
     assert "GNOME desktop-awareness helper is unavailable" in output
     assert "LOG OUT OF GNOME" not in output
+
+
+def test_apt_installs_only_missing_debian_packages(tmp_path: Path) -> None:
+    result, log_dir = _run_installer(
+        tmp_path,
+        current_desktop="X-Cinnamon",
+        package_manager="apt",
+        apt_missing=("python3-gi-cairo", "gir1.2-gtk-4.0"),
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    install_log = _read_log(log_dir, "apt-get.log")
+    assert install_log.startswith("install -y ")
+    requested = install_log.split()[2:]
+    assert requested == ["python3-gi-cairo", "gir1.2-gtk-4.0"]
+    checked = _read_log(log_dir, "dpkg-query.log").split()
+    for package in (
+        "python3-venv",
+        "python3-gi",
+        "gir1.2-gstreamer-1.0",
+        "gstreamer1.0-plugins-base",
+        "libx11-6",
+        "pipewire-bin",
+        "libglib2.0-bin",
+        "gir1.2-atspi-2.0",
+    ):
+        assert package in checked
+    assert "gnome-shell" not in checked
+    assert "Installing Debian/Ubuntu dependencies" in result.stdout
+
+
+def test_apt_with_nothing_missing_never_calls_sudo(tmp_path: Path) -> None:
+    result, log_dir = _run_installer(
+        tmp_path,
+        current_desktop="X-Cinnamon",
+        package_manager="apt",
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert not (log_dir / "apt-get.log").exists()
+    assert not (log_dir / "sudo.log").exists()
+    assert "Required Debian/Ubuntu packages are already installed" in result.stdout
+    assert "supports Fedora only" not in result.stdout + result.stderr
+
+
+@pytest.mark.parametrize("available", [True, False])
+def test_apt_requests_layer_shell_only_when_the_archive_has_it(
+    tmp_path: Path,
+    available: bool,
+) -> None:
+    layer_shell = "gir1.2-gtk4layershell-1.0"
+    result, log_dir = _run_installer(
+        tmp_path,
+        current_desktop="X-Cinnamon",
+        package_manager="apt",
+        apt_missing=(layer_shell,),
+        apt_available=(layer_shell,) if available else (),
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert (layer_shell in _read_log(log_dir, "dpkg-query.log")) is available
+    assert (layer_shell in _read_log(log_dir, "apt-get.log")) is available
+
+
+def test_apt_on_gnome_checks_gnome_shell(tmp_path: Path) -> None:
+    result, log_dir = _run_installer(
+        tmp_path,
+        current_desktop="ubuntu:GNOME",
+        package_manager="apt",
+        with_gnome_extensions=True,
+    )
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "gnome-shell" in _read_log(log_dir, "dpkg-query.log").split()
+
+
+def test_unknown_package_manager_names_supported_families(tmp_path: Path) -> None:
+    result, _log_dir = _run_installer(tmp_path, package_manager="none")
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "Fedora and Debian/Ubuntu/Linux Mint" in result.stderr
+
+
+def test_install_summary_names_the_applications_menu(tmp_path: Path) -> None:
+    result, _log_dir = _run_installer(tmp_path, current_desktop="X-Cinnamon")
+
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "applications menu → Mochi" in result.stdout
+    assert "app grid" not in result.stdout
 
 
 def test_installer_reuses_compatible_private_venv_build_tools(tmp_path: Path) -> None:

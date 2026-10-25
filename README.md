@@ -262,8 +262,9 @@ model.
 
 ### Give Mochi a corner of your desktop
 
-The installer has a supported dependency path for Fedora. It creates a private
-Python environment, adds Mochi to the application grid, and installs `mochi`,
+The installer has supported dependency paths for Fedora and for
+Debian/Ubuntu/Linux Mint (apt). It creates a private
+Python environment, adds Mochi to your applications menu, and installs `mochi`,
 `mochi-update`, and `mochi-uninstall` under `~/.local/bin`. On GNOME, it also installs the
 optional awareness helper when GNOME extension tooling is available.
 
@@ -339,6 +340,15 @@ That manual path updates the checked-out source and installed runtime. The
 normal in-app/`mochi-update` path does **not** switch branches, stash files, or
 modify a developer checkout.
 
+### Linux Mint (Cinnamon)
+
+Linux Mint 22 Cinnamon runs an X11 session, so Mochi uses its regular X11
+window path. `./install.sh` installs any missing packages with `apt` (it asks
+for your password only if something is missing), then launch Mochi from the
+Cinnamon menu. The GNOME awareness helper is skipped, so typing/idle reactions
+and the global shortcuts below are unavailable on Cinnamon; everything else,
+including the right-click menu, works.
+
 ### Fedora with Niri
 
 Niri support is experimental. After an update, rerun the installer and reset
@@ -353,7 +363,7 @@ mochi --reset-position
 
 ## Controls
 
-Launch Mochi from the application grid or run:
+Launch Mochi from your applications menu or run:
 
 ```bash
 mochi
@@ -383,8 +393,10 @@ Global shortcuts require the GNOME helper.
   after the portability fixes in [#126](https://github.com/miflow13/mochi-desktop/pull/126).
 - Mochi uses an XWayland GTK window on GNOME Wayland for reliable desktop
   positioning.
+- **Linux Mint 22 (Cinnamon, X11):** automatic dependency installation via
+  `apt`; runs without the GNOME helper.
 - Other distributions may work, but automatic dependency installation currently
-  supports Fedora. Mochi's installer no longer requires Fedora's Python build
+  supports Fedora and Debian/Ubuntu/Linux Mint. Mochi's installer no longer requires Fedora's Python build
   packages to provide the local setuptools build backend.
 - GNOME provides the fullest AmbiSense integration. On non-GNOME desktops, the
   optional GNOME helper is skipped instead of blocking installation.
