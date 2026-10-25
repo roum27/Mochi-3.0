@@ -6,6 +6,7 @@ from collections.abc import Callable, Iterable
 import logging
 
 from mochi.behavior import can_start_pocket_receive
+from mochi.i18n import tr
 from mochi.pocket import PocketItem
 from mochi.pocket_store import PocketStore
 from mochi.state import MochiState
@@ -227,9 +228,12 @@ class PocketController:
 
     @staticmethod
     def _held_message(received: int, evicted: int) -> str:
-        noun = "item" if received == 1 else "items"
-        message = f"Held {received} {noun}"
-        if evicted:
-            removed = "item" if evicted == 1 else "items"
-            message += f" · removed the oldest {evicted} {removed}"
+        if received == 1:
+            message = tr("Held 1 item")
+        else:
+            message = tr("Held {count} items").format(count=received)
+        if evicted == 1:
+            message += tr(" · removed the oldest 1 item")
+        elif evicted:
+            message += tr(" · removed the oldest {count} items").format(count=evicted)
         return message

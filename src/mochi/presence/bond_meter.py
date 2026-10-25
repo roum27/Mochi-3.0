@@ -25,6 +25,7 @@ from mochi.emotes import (
     unlocked_emote_animation_names,
 )
 from mochi.focus import FocusPhase
+from mochi.i18n import tr
 from mochi.sprites import ANIMATIONS
 from mochi.state import MochiState, PresentationState
 
@@ -65,8 +66,11 @@ class BondMeter(Gtk.ProgressBar):
     def set_state(self, state: BondState) -> None:
         self.set_fraction(state.progress_fraction)
         self.set_tooltip_text(
-            f"{state.xp}/{state.xp_required} bond XP "
-            f"({state.progress_percent}%)"
+            tr("{xp}/{required} bond XP ({percent}%)").format(
+                xp=state.xp,
+                required=state.xp_required,
+                percent=state.progress_percent,
+            )
         )
 
 
@@ -136,7 +140,7 @@ class BondMeterMixin:
         return row
 
     def _bond_label_text(self) -> str:
-        return f"Bond Lv. {self._bond_state.level}"
+        return tr("Bond Lv. {level}").format(level=self._bond_state.level)
 
     def _set_bond_state_for_ui(self, state: BondState) -> None:
         self._bond_state = BondState(level=state.level, xp=state.xp)
@@ -828,7 +832,8 @@ class BondMeterMixin:
         context.save()
         context.select_font_face("Sans")
         context.set_font_size(label_size)
-        extents = context.text_extents(FOCUS_BOND_LABEL)
+        label = tr(FOCUS_BOND_LABEL)
+        extents = context.text_extents(label)
         if hasattr(extents, "width"):
             text_width = float(extents.width)
             x_bearing = float(getattr(extents, "x_bearing", 0.0))
@@ -839,7 +844,7 @@ class BondMeterMixin:
         label_y = max(label_size, y - label_gap)
         context.set_source_rgba(0.78, 0.92, 0.80, 0.94)
         context.move_to(label_x, label_y)
-        context.show_text(FOCUS_BOND_LABEL)
+        context.show_text(label)
         context.restore()
 
         # Track: subtle enough to read as context, not a second HUD.

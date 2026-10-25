@@ -19,6 +19,12 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
   files, commands, or its replies, and Mochi makes no network requests. See
   [Agent Companion](docs/agent-companion.md) for setup.
 
+- Mochi speaks French. On a French system locale (for example
+  `LANG=fr_CA.UTF-8`) his speech bubbles, right-click menu, Quick Start,
+  Focus, Emote Catalogue, Pocket, and level-up cards are in French. Set
+  `MOCHI_LANGUAGE=en` or `MOCHI_LANGUAGE=fr` to choose explicitly. Mochi Lab
+  developer tools and the updater window stay in English.
+
 ### Changed
 
 - `./install.sh` now installs Mochi's system packages with `apt` on Linux

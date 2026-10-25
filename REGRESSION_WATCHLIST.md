@@ -247,6 +247,15 @@ Fresh Fedora GNOME/Wayland/XWayland QA:
 - [ ] Linux Mint Cinnamon: drag, right-click menu, and stay-on-top across workspaces work on the X11 path
 - [ ] `mochi-update` and in-app updating use the same exact-target transaction path
 
+## Language / French
+
+- [ ] With `LANG=fr_CA.UTF-8` (or `MOCHI_LANGUAGE=fr`), startup intro, ambient speech, click/drag/feed speech, and Focus lines appear in French
+- [ ] French right-click menu labels fit without clipping; Sleep ↔ Wake up label flips correctly in French
+- [ ] Quick Start, Focus, Emote Catalogue, and Pocket windows render French copy without overflowing their default sizes
+- [ ] Level-up and new-emote cards show French titles and the translated emote name
+- [ ] `MOCHI_LANGUAGE=en` on a French system restores all-English copy
+- [ ] Speech still respects speech_enabled, quiet mode, and presentation priority in French
+
 ## Release Gate
 
 - [ ] Relevant focused tests pass

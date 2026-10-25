@@ -371,6 +371,11 @@ mochi
 
 If `~/.local/bin` is not on `PATH`, use `~/.local/bin/mochi`.
 
+Mochi follows your system language: on a French locale he speaks and labels
+his menus in French. To choose explicitly, launch him with
+`MOCHI_LANGUAGE=fr mochi` or `MOCHI_LANGUAGE=en mochi`. Mochi Lab developer
+tools and the updater window stay in English.
+
 | Interaction | What it does |
 | --- | --- |
 | Left-click | Chirp + tactile reaction |

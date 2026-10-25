@@ -11,6 +11,7 @@ import gi
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gtk
 
+from mochi.i18n import tr
 from mochi.pocket import PocketItem
 from mochi.pocket_controller import PocketController
 from mochi.pocket_drop import PocketDropAdapter
@@ -81,7 +82,7 @@ class PocketBuddyMixin:
     def _build_context_menu(self):
         menu = super()._build_context_menu()
         button, self._pocket_label = self._make_menu_button(
-            f"Pocket · {self._pocket_controller.count}",
+            tr("Pocket · {count}").format(count=self._pocket_controller.count),
             "folder-download-symbolic",
             self._pocket_from_context_menu,
         )
@@ -105,7 +106,7 @@ class PocketBuddyMixin:
 
     def _on_pocket_changed(self, items: Sequence[PocketItem]) -> None:
         if self._pocket_label is not None:
-            self._pocket_label.set_text(f"Pocket · {len(items)}")
+            self._pocket_label.set_text(tr("Pocket · {count}").format(count=len(items)))
         if (
             self._pocket_window is not None
             and self._pocket_window.get_visible()

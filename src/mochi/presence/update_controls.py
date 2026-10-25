@@ -7,6 +7,7 @@ import threading
 
 from gi.repository import GLib, Gtk
 
+from mochi.i18n import tr
 from mochi.update.bootstrap import bootstrap_updater
 from mochi.update.checker import GitHubUpdateSource, UpdateChecker
 from mochi.update.model import UpdateCheckResult, UpdateStatus, UpdateTarget
@@ -118,7 +119,7 @@ class UpdateControlsMixin:
         if result.status is UpdateStatus.UPDATE_AVAILABLE and result.target is not None:
             self._update_target = result.target
             if self._update_menu_label is not None:
-                self._update_menu_label.set_text("Update available")
+                self._update_menu_label.set_text(tr("Update available"))
 
             if (
                 result.announce
@@ -142,7 +143,7 @@ class UpdateControlsMixin:
         if result.status is UpdateStatus.UP_TO_DATE:
             self._update_target = None
             if self._update_menu_label is not None:
-                self._update_menu_label.set_text("Check for updates")
+                self._update_menu_label.set_text(tr("Check for updates"))
             if manual:
                 window = self._get_update_window()
                 window.show_success()
@@ -152,8 +153,8 @@ class UpdateControlsMixin:
         if manual:
             window = self._get_update_window()
             window.show_failure(
-                "Couldn’t check for updates.",
-                result.error or "Update check failed without additional details.",
+                tr("Couldn’t check for updates."),
+                result.error or tr("Update check failed without additional details."),
             )
             window.present()
         return False
@@ -178,7 +179,7 @@ class UpdateControlsMixin:
         if target.metadata.channel != self._config.load_update_channel():
             self._update_target = None
             if self._update_menu_label is not None:
-                self._update_menu_label.set_text("Check for updates")
+                self._update_menu_label.set_text(tr("Check for updates"))
             return None
         return target
 

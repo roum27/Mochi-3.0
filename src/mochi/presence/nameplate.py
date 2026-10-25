@@ -24,6 +24,7 @@ gi.require_version("Gdk", "4.0")
 gi.require_version("Gtk", "4.0")
 from gi.repository import Gdk, Gtk  # noqa: E402
 
+from mochi.i18n import tr
 from mochi.sprites import ANIMATIONS
 from mochi.x11 import get_window_position, move_window
 
@@ -162,7 +163,7 @@ class Nameplate:
         self._refresh_label_text()
 
     def set_status(self, status: str | None) -> None:
-        self._status = status.strip() if status else None
+        self._status = tr(status.strip()) if status else None
         self._refresh_label_text()
 
     def clear_status(self) -> None:

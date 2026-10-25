@@ -16,6 +16,7 @@ gi.require_version("Gdk", "4.0")
 from gi.repository import Gdk, GLib, Gtk  # noqa: E402
 
 from mochi.config import ConfigStore
+from mochi.i18n import tr
 from mochi.menu_window import MenuWindow
 from mochi.sound import SoundEvent
 from mochi.state import MochiState
@@ -149,7 +150,7 @@ class BuddyMenuController:
         title = Gtk.Label(label="Mochi")
         title.set_xalign(0)
         title.add_css_class("mochi-menu-title")
-        subtitle = Gtk.Label(label="your tiny desktop buddy")
+        subtitle = Gtk.Label(label=tr("your tiny desktop buddy"))
         subtitle.set_xalign(0)
         subtitle.add_css_class("mochi-menu-subtitle")
         header_text.append(title)
@@ -376,7 +377,7 @@ class BuddyMenuController:
         icon = Gtk.Image.new_from_icon_name(icon_name)
         icon.add_css_class("mochi-menu-icon")
         row.append(icon)
-        text = Gtk.Label(label=label)
+        text = Gtk.Label(label=tr(label))
         text.set_xalign(0)
         text.set_hexpand(True)
         row.append(text)
@@ -478,7 +479,7 @@ class BuddyMenuController:
         # after this presentation path has established menu ownership.
         self._buddy._cancel_hover_heart()
         self._buddy._sleep_label.set_text(
-            "Wake up" if self._buddy.state.current is MochiState.SLEEPING else "Sleep"
+            tr("Wake up" if self._buddy.state.current is MochiState.SLEEPING else "Sleep")
         )
         # Anchor the menu to Mochi's full sprite bounds rather than the exact
         # click point. MenuWindow can then keep the entire menu beside Mochi

@@ -7,6 +7,7 @@ import time
 from gi.repository import GLib, Gtk
 
 from mochi.buddy import Buddy
+from mochi.i18n import tr
 from mochi.sprites import ANIMATIONS
 from mochi.state import MochiState
 from mochi.x11_buddy import X11Buddy
@@ -131,14 +132,14 @@ class PresenceBuddyMixin:
     def _make_stay_put_row(self) -> tuple[Gtk.Button, Gtk.Switch]:
         button = Gtk.Button()
         button.add_css_class("mochi-menu-row")
-        button.set_tooltip_text("Prevent Mochi from wandering on his own")
+        button.set_tooltip_text(tr("Prevent Mochi from wandering on his own"))
 
         row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=10)
         icon = Gtk.Image.new_from_icon_name("media-playback-pause-symbolic")
         icon.add_css_class("mochi-menu-icon")
         row.append(icon)
 
-        text = Gtk.Label(label="Stay put")
+        text = Gtk.Label(label=tr("Stay put"))
         text.set_xalign(0)
         text.set_hexpand(True)
         row.append(text)

@@ -14,6 +14,7 @@ from gi.repository import Gdk, GLib, Gtk  # noqa: E402
 
 from mochi.care import BondState
 from mochi.emotes import EmoteDefinition
+from mochi.i18n import tr
 from mochi.sprites import ANIMATIONS, SpriteAtlas
 from mochi.x11 import get_window_position, move_window, request_keep_above
 
@@ -335,9 +336,9 @@ class BondProgressOverlay:
         self._level_up_previous_level = previous_level
         self._active = True
         for label in (self._level_up_title, self._popover_level_up_title):
-            label.set_text("✦  LEVEL UP!  ✦")
+            label.set_text(tr("✦  LEVEL UP!  ✦"))
         for label in (self._level_up_subtitle, self._popover_level_up_subtitle):
-            label.set_text(LEVEL_UP_REACTION_LINE)
+            label.set_text(tr(LEVEL_UP_REACTION_LINE))
         for preview in self._unlock_previews:
             preview.set_emote(None)
         self._set_level_up_content(True)
@@ -363,12 +364,14 @@ class BondProgressOverlay:
         self._set_level_up_highlight(True)
 
         for label in (self._level_up_title, self._popover_level_up_title):
-            label.set_text("✦  NEW EMOTE UNLOCKED!  ✦")
+            label.set_text(tr("✦  NEW EMOTE UNLOCKED!  ✦"))
         for label in (self._level_up_level, self._popover_level_up_level):
-            label.set_text(emote.label)
-        subtitle = (
-            f"{emote.rarity.upper()} · Bond Lv. {emote.required_bond_level} · "
-            "now part of Mochi's idle moods"
+            label.set_text(tr(emote.label))
+        subtitle = tr(
+            "{rarity} · Bond Lv. {level} · now part of Mochi's idle moods"
+        ).format(
+            rarity=tr(emote.rarity.upper()),
+            level=emote.required_bond_level,
         )
         for label in (self._level_up_subtitle, self._popover_level_up_subtitle):
             label.set_text(subtitle)
@@ -386,13 +389,15 @@ class BondProgressOverlay:
         if activity is not None:
             self._activity = activity.strip() or "bonding"
 
-        level_text = f"Bond Lv. {self._state.level}"
-        activity_text = self._activity
+        level_text = tr("Bond Lv. {level}").format(level=self._state.level)
+        activity_text = tr(self._activity)
         xp_text = f"{self._state.xp} / {self._state.xp_required} XP"
         gain_text = self._gain_text
 
         if not self._emote_unlock_active:
-            level_up_level_text = f"Bond Level {self._state.level}"
+            level_up_level_text = tr("Bond Level {level}").format(
+                level=self._state.level
+            )
             for label in (self._level_up_level, self._popover_level_up_level):
                 label.set_text(level_up_level_text)
 
@@ -408,8 +413,11 @@ class BondProgressOverlay:
         for bar in (self._bar, self._popover_bar):
             bar.set_fraction(self._state.progress_fraction)
             bar.set_tooltip_text(
-                f"{self._state.xp}/{self._state.xp_required} bond XP "
-                f"({self._state.progress_percent}%)"
+                tr("{xp}/{required} bond XP ({percent}%)").format(
+                    xp=self._state.xp,
+                    required=self._state.xp_required,
+                    percent=self._state.progress_percent,
+                )
             )
 
         if self.visible:
