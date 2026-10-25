@@ -194,7 +194,7 @@ def test_update_download_is_pinned_to_exact_target_sha(tmp_path: Path) -> None:
     assert worker.run(_target("deadbeef"), wait_pid=None, on_progress=lambda _p: None) == 0
 
     assert harness.download_urls == [
-        "https://codeload.github.com/miflow13/mochi-desktop/tar.gz/deadbeef"
+        "https://codeload.github.com/roum27/Mochi-3.0/tar.gz/deadbeef"
     ]
     assert not any("/commits/main" in url for url in harness.download_urls)
 

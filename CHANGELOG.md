@@ -34,6 +34,9 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
 
 ### Changed
 
+- Mochi's updater now checks and downloads from this fork
+  (`roum27/Mochi-3.0`) instead of the original `miflow13/mochi-desktop`, so
+  an update can never replace this version with upstream.
 - `./install.sh` now installs Mochi's system packages with `apt` on Linux
   Mint, Ubuntu, and Debian, asking for your password only when something is
   missing. The install summary now points at your applications menu instead

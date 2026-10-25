@@ -353,8 +353,8 @@ def test_github_source_resolves_latest_release_to_its_commit() -> None:
 
     assert source.resolve_latest_release() == ("v0.4.0-alpha.2", "def456")
     assert calls == [
-        "https://api.github.com/repos/miflow13/mochi-desktop/releases/latest",
-        "https://api.github.com/repos/miflow13/mochi-desktop/commits/v0.4.0-alpha.2",
+        "https://api.github.com/repos/roum27/Mochi-3.0/releases/latest",
+        "https://api.github.com/repos/roum27/Mochi-3.0/commits/v0.4.0-alpha.2",
     ]
 
 
@@ -412,15 +412,15 @@ def test_github_source_pins_metadata_to_resolved_commit() -> None:
     assert metadata.highlights == ("one", "two", "three")
     assert calls == [
         (
-            "https://api.github.com/repos/miflow13/mochi-desktop/commits/main",
+            "https://api.github.com/repos/roum27/Mochi-3.0/commits/main",
             2.5,
         ),
         (
-            "https://api.github.com/repos/miflow13/mochi-desktop/compare/old123...abc123",
+            "https://api.github.com/repos/roum27/Mochi-3.0/compare/old123...abc123",
             2.5,
         ),
         (
-            "https://raw.githubusercontent.com/miflow13/mochi-desktop/abc123/update.json",
+            "https://raw.githubusercontent.com/roum27/Mochi-3.0/abc123/update.json",
             2.5,
         ),
     ]

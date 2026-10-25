@@ -1,6 +1,6 @@
 """Shared constants for Mochi's self-contained updater package."""
 
-OFFICIAL_REPOSITORY = "miflow13/mochi-desktop"
+OFFICIAL_REPOSITORY = "roum27/Mochi-3.0"
 
 # "release" follows GitHub's latest published (non-prerelease) release; "main"
 # follows every merged change and is meant for alpha testers.
