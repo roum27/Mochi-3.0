@@ -262,6 +262,8 @@ Fresh Fedora GNOME/Wayland/XWayland QA:
 ## Accessibility Bus
 
 - [ ] Mochi starts and stays up in a session without `at-spi-bus-launcher` (no `dbind-ERROR` abort); typing reactions still work through the Cinnamon/GNOME helper
+- [ ] Mochi also starts when `org.a11y.Bus` still answers but its `$XDG_RUNTIME_DIR/at-spi/bus_*` socket is gone
+- [ ] Running the update end-to-end test (`MOCHI_RUN_UPDATE_E2E=1`) leaves the developer's `$XDG_RUNTIME_DIR/at-spi` socket intact
 - [ ] With the accessibility bus present and no helper, the AT-SPI typing fallback still starts
 
 ## Language / French

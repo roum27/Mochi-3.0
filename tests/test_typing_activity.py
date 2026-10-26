@@ -426,15 +426,38 @@ class AccessibilityBusGuardTests(unittest.TestCase):
                 self.assertEqual(backend.last_error, "accessibility bus is unavailable")
                 self.assertFalse(backend.active)
 
-    def test_bus_address_from_the_environment_counts_as_available(self) -> None:
+    def test_reachable_environment_address_skips_the_session_bus_lookup(self) -> None:
+        gio, glib, bus, connected = self._fakes(reachable=True)
         with patch.dict("os.environ", {"AT_SPI_BUS_ADDRESS": "unix:path=/tmp/a11y"}):
-            self.assertTrue(accessibility_bus_available(load_gio=self._unreachable))
+            self.assertTrue(accessibility_bus_available(load_gio=lambda: (gio, glib)))
+        self.assertEqual(bus.calls, [])
+        self.assertEqual(connected, ["unix:path=/tmp/a11y"])
 
     def test_unreachable_bus_is_reported_unavailable(self) -> None:
         with patch.dict("os.environ", {}, clear=True):
             self.assertFalse(accessibility_bus_available(load_gio=self._unreachable))
 
-    def test_bus_that_returns_an_address_is_available(self) -> None:
+    def test_advertised_address_that_cannot_connect_is_unavailable(self) -> None:
+        # A stale at-spi-bus-launcher can keep answering GetAddress after its
+        # socket is gone; libatspi would still abort on that address.
+        gio, glib, bus, _connected = self._fakes(reachable=False)
+        with patch.dict("os.environ", {}, clear=True):
+            self.assertFalse(accessibility_bus_available(load_gio=lambda: (gio, glib)))
+        self.assertEqual(
+            bus.calls[0][:4],
+            ("org.a11y.Bus", "/org/a11y/bus", "org.a11y.Bus", "GetAddress"),
+        )
+
+    def test_advertised_address_that_connects_is_available(self) -> None:
+        gio, glib, _bus, connected = self._fakes(reachable=True)
+        with patch.dict("os.environ", {}, clear=True):
+            self.assertTrue(accessibility_bus_available(load_gio=lambda: (gio, glib)))
+        self.assertEqual(connected, ["unix:path=/run/user/1000/at-spi/bus"])
+
+    @staticmethod
+    def _fakes(*, reachable: bool):
+        connected: list[str] = []
+
         class _Reply:
             @staticmethod
             def unpack():
@@ -448,13 +471,35 @@ class AccessibilityBusGuardTests(unittest.TestCase):
                 self.calls.append(args)
                 return _Reply()
 
+        class _Connection:
+            @staticmethod
+            def close_sync(_cancellable):
+                return True
+
+        def new_for_address_sync(address, _flags, _observer, _cancellable):
+            if not reachable:
+                raise RuntimeError("Could not connect: No such file or directory")
+            connected.append(address)
+            return _Connection()
+
         bus = _Bus()
+        flags = type(
+            "DBusConnectionFlags",
+            (),
+            {"AUTHENTICATION_CLIENT": 1, "MESSAGE_BUS_CONNECTION": 2},
+        )
         gio = type(
             "Gio",
             (),
             {
                 "BusType": type("BusType", (), {"SESSION": "session"}),
                 "DBusCallFlags": type("DBusCallFlags", (), {"NONE": 0}),
+                "DBusConnectionFlags": flags,
+                "DBusConnection": type(
+                    "DBusConnection",
+                    (),
+                    {"new_for_address_sync": staticmethod(new_for_address_sync)},
+                ),
                 "bus_get_sync": staticmethod(lambda _type, _cancellable: bus),
             },
         )
@@ -463,9 +508,7 @@ class AccessibilityBusGuardTests(unittest.TestCase):
             (),
             {"VariantType": type("VariantType", (), {"new": staticmethod(lambda sig: sig)})},
         )
-        with patch.dict("os.environ", {}, clear=True):
-            self.assertTrue(accessibility_bus_available(load_gio=lambda: (gio, glib)))
-        self.assertEqual(bus.calls[0][:4], ("org.a11y.Bus", "/org/a11y/bus", "org.a11y.Bus", "GetAddress"))
+        return gio, glib, bus, connected
 
     @staticmethod
     def _unreachable():

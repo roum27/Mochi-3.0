@@ -90,6 +90,11 @@ def _sandbox_environment(tmp_path: Path) -> dict[str, str]:
     home = tmp_path / "home"
     for name in ("config", "data", "state", "cache"):
         (home / name).mkdir(parents=True)
+    # A private runtime dir keeps the relaunched Mochi's at-spi-bus-launcher
+    # from replacing, and on exit deleting, the developer's own
+    # $XDG_RUNTIME_DIR/at-spi bus socket.
+    runtime = tmp_path / "runtime"
+    runtime.mkdir(mode=0o700)
     tools = tmp_path / "tools"
     tools.mkdir()
     # install.sh resolves python3 from PATH; use the interpreter that has GTK.
@@ -104,6 +109,7 @@ def _sandbox_environment(tmp_path: Path) -> dict[str, str]:
         XDG_DATA_HOME=str(home / "data"),
         XDG_STATE_HOME=str(home / "state"),
         XDG_CACHE_HOME=str(home / "cache"),
+        XDG_RUNTIME_DIR=str(runtime),
         PATH=f"{tools}{os.pathsep}{environment.get('PATH', '')}",
         NO_COLOR="1",
         GTK_A11Y="none",

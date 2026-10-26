@@ -38,32 +38,43 @@ def _load_gio():
 
 
 def accessibility_bus_available(*, load_gio=_load_gio) -> bool:
-    """Return whether libatspi will find an accessibility bus.
+    """Return whether libatspi will be able to connect to an accessibility bus.
 
-    Atspi.init() does not raise when org.a11y.Bus is missing: libatspi's dbind
-    calls g_error() and aborts the whole process. Probe the bus the same way
-    libatspi locates it before any AT-SPI backend initializes it.
+    Atspi.init() does not raise when it cannot connect: libatspi's dbind calls
+    g_error() and aborts the whole process. That happens both when org.a11y.Bus
+    is missing and when it advertises a socket that no longer exists, so locate
+    the bus the way libatspi does and then actually connect to it.
     """
-    if os.environ.get("AT_SPI_BUS_ADDRESS"):
-        return True
     try:
         Gio, GLib = load_gio()
-        bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
-        reply = bus.call_sync(
-            "org.a11y.Bus",
-            "/org/a11y/bus",
-            "org.a11y.Bus",
-            "GetAddress",
+        address = os.environ.get("AT_SPI_BUS_ADDRESS")
+        if not address:
+            bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
+            reply = bus.call_sync(
+                "org.a11y.Bus",
+                "/org/a11y/bus",
+                "org.a11y.Bus",
+                "GetAddress",
+                None,
+                GLib.VariantType.new("(s)"),
+                Gio.DBusCallFlags.NONE,
+                ACCESSIBILITY_BUS_TIMEOUT_MS,
+                None,
+            )
+            (address,) = reply.unpack()
+        if not address:
+            return False
+        connection = Gio.DBusConnection.new_for_address_sync(
+            address,
+            Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT
+            | Gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION,
             None,
-            GLib.VariantType.new("(s)"),
-            Gio.DBusCallFlags.NONE,
-            ACCESSIBILITY_BUS_TIMEOUT_MS,
             None,
         )
-        (address,) = reply.unpack()
+        connection.close_sync(None)
     except Exception:
         return False
-    return bool(address)
+    return True
 
 
 class TypingBurstDetector:
