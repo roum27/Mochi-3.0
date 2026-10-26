@@ -8,6 +8,15 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
 
 ### Added
 
+- **Talk to Mochi...** in the right-click menu opens a one-line prompt. Type a
+  message, press Enter, and Mochi answers in his speech bubble using an
+  [Ollama](https://ollama.com) server you point him at in
+  `~/.config/mochi/ollama/config.json` (`host` and `model`). His identity is
+  the editable `system.md` next to it; he remembers recent exchanges in
+  `history.json` and distills older ones into `memory.md` automatically.
+  Mochi only contacts that server when you send a message; if it can't be
+  reached he says so and nothing else changes.
+
 - **Activity** in the right-click menu sets how lively Mochi is on his own.
   Click it to cycle **Calm** (the default, unchanged from before), **Lively**,
   and **Energetic**. Livelier levels give him more frequent, longer strolls

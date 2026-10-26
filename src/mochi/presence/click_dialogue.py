@@ -24,6 +24,7 @@ from .integration import (
     PresenceX11Buddy as BasePresenceX11Buddy,
 )
 from .music_dance import MusicDanceMixin
+from .ollama_controls import OllamaChatMixin
 from .nameplate_controls import NameplateMixin
 from .phrases import bond_dialogue_lines
 from .terminal_cowork import TerminalCoworkMixin
@@ -183,6 +184,7 @@ class ClickDialogueMixin:
 
 class PresenceBuddy(
     ClickDialogueMixin,
+    OllamaChatMixin,
     ActiveWindowCuriosityMixin,
     IdleLookMixin,
     UpdateControlsMixin,
@@ -206,6 +208,7 @@ class PresenceBuddy(
 
 class PresenceX11Buddy(
     ClickDialogueMixin,
+    OllamaChatMixin,
     ActiveWindowCuriosityMixin,
     IdleLookMixin,
     UpdateControlsMixin,

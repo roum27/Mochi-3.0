@@ -740,4 +740,9 @@ FEATURE_SPEECH_FR: tuple[tuple[str, str], ...] = (
     ("nice work. we did it 🌱", "beau travail. on l'a fait 🌱"),
     ("stopped. no worries 🌱", "arrêté. pas de souci 🌱"),
     ("Mochi is typing", "Mochi écrit"),
+    ("hmm...", "hmm..."),
+    (
+        "my head's in the clouds... i can't think right now",
+        "j'ai la tête dans les nuages... je peux pas réfléchir là",
+    ),
 )

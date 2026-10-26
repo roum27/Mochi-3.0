@@ -259,6 +259,16 @@ Fresh Fedora GNOME/Wayland/XWayland QA:
 - [ ] Edge roam keeps working at every level; strolls stay on the perimeter
 - [ ] Dragging, clicks, Focus, sleep, and the context menu still interrupt or block autonomous walks at every level
 
+## Talk to Mochi (Ollama)
+
+- [ ] Right-click menu shows **Talk to Mochi...** (Parler à Mochi...) before Sleep, without clipping
+- [ ] It opens a small window with a focused one-line entry; Enter sends and closes it, Escape closes it
+- [ ] Mochi shows "hmm..." while waiting, then the reply in his bubble; long replies stay readable and wrap
+- [ ] Mochi stays draggable, clickable and animated while a reply is pending
+- [ ] With the server unreachable, Mochi says his head is in the clouds and nothing else breaks
+- [ ] After 20+ exchanges, `memory.md` gains facts and `history.json` shrinks
+- [ ] Quitting with the window open or a reply pending exits cleanly
+
 ## Accessibility Bus
 
 - [ ] Mochi starts and stays up in a session without `at-spi-bus-launcher` (no `dbind-ERROR` abort); typing reactions still work through the Cinnamon/GNOME helper

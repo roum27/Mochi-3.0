@@ -64,6 +64,21 @@ service.** A small desktop helper reduces activity to content-free signals:
 Mochi never sees typed characters, key values, window titles, document names,
 or screen content. See [AmbiSense](docs/ambisense.md).
 
+### Talk to Mochi (optional, Ollama)
+
+**Talk to Mochi...** in the right-click menu sends what you type to an
+[Ollama](https://ollama.com) server of your choice and shows the answer in
+Mochi's bubble. Nothing is sent until you write to him. Configure it in
+`~/.config/mochi/ollama/`:
+
+- `config.json`: `{"host": "http://192.168.1.10:11434", "model": "llama3.2:3b"}`
+  (created with `localhost` on first use);
+- `system.md`: Mochi's identity and voice, sent as the system prompt;
+- `memory.md`: facts Mochi distilled from older chats (editable);
+- `history.json`: recent exchanges.
+
+A server on another machine must listen on the network (`OLLAMA_HOST=0.0.0.0`).
+
 ## Install
 
 ```bash
@@ -150,7 +165,7 @@ not on `PATH`, use `~/.local/bin/mochi`.
 | Double-click | Heart emote |
 | Three quick clicks | Short playful dialogue |
 | Drag | Pick up and reposition Mochi |
-| Right-click | Bond, Feed, Focus, Pocket, size/audio, sleep/wake, movement, Activity, and app controls |
+| Right-click | Bond, Feed, Talk to Mochi, Focus, Pocket, size/audio, sleep/wake, movement, Activity, and app controls |
 | `Ctrl + Alt + E` | Open the Emote Catalogue |
 | `Ctrl + Alt + Shift + M` | Open Mochi Lab developer controls |
 
