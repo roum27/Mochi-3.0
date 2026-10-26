@@ -11,6 +11,7 @@ from __future__ import annotations
 from collections import deque
 from collections.abc import Callable, Iterable
 import logging
+import os
 import time
 from typing import Protocol
 
@@ -24,6 +25,45 @@ DEFAULT_MINIMUM_START_SPAN_SECONDS = 0.30
 
 # Bridge normal thinking pauses so Mochi does not repeatedly stop/restart.
 DEFAULT_STOP_DELAY_SECONDS = 2.25
+
+ACCESSIBILITY_BUS_TIMEOUT_MS = 1_000
+
+
+def _load_gio():
+    import gi
+
+    from gi.repository import Gio, GLib
+
+    return Gio, GLib
+
+
+def accessibility_bus_available(*, load_gio=_load_gio) -> bool:
+    """Return whether libatspi will find an accessibility bus.
+
+    Atspi.init() does not raise when org.a11y.Bus is missing: libatspi's dbind
+    calls g_error() and aborts the whole process. Probe the bus the same way
+    libatspi locates it before any AT-SPI backend initializes it.
+    """
+    if os.environ.get("AT_SPI_BUS_ADDRESS"):
+        return True
+    try:
+        Gio, GLib = load_gio()
+        bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
+        reply = bus.call_sync(
+            "org.a11y.Bus",
+            "/org/a11y/bus",
+            "org.a11y.Bus",
+            "GetAddress",
+            None,
+            GLib.VariantType.new("(s)"),
+            Gio.DBusCallFlags.NONE,
+            ACCESSIBILITY_BUS_TIMEOUT_MS,
+            None,
+        )
+        (address,) = reply.unpack()
+    except Exception:
+        return False
+    return bool(address)
 
 
 class TypingBurstDetector:
@@ -177,10 +217,15 @@ class AtspiDeviceActivityBackend:
 
     name = "AT-SPI DeviceA11yManager keyboard activity"
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        *,
+        bus_probe: Callable[[], bool] = accessibility_bus_available,
+    ) -> None:
         self._device = None
         self._handler_id: int | None = None
         self._on_activity: Callable[[], None] | None = None
+        self._bus_probe = bus_probe
         self.last_error: str | None = None
 
     @property
@@ -192,6 +237,9 @@ class AtspiDeviceActivityBackend:
             return True
 
         self.last_error = None
+        if not self._bus_probe():
+            self.last_error = "accessibility bus is unavailable"
+            return False
         try:
             import gi
 
@@ -298,11 +346,17 @@ class AtspiTextActivityBackend:
     TEXT_CHANGED_EVENT = "object:text-changed"
     CARET_MOVED_EVENT = "object:text-caret-moved"
 
-    def __init__(self, *, allow_text_changed: bool = True) -> None:
+    def __init__(
+        self,
+        *,
+        allow_text_changed: bool = True,
+        bus_probe: Callable[[], bool] = accessibility_bus_available,
+    ) -> None:
         self._listener = None
         self._registered_events: list[str] = []
         self._on_activity: Callable[[], None] | None = None
         self._allow_text_changed = bool(allow_text_changed)
+        self._bus_probe = bus_probe
         self.last_error: str | None = None
 
     @property
@@ -314,6 +368,9 @@ class AtspiTextActivityBackend:
             return True
 
         self.last_error = None
+        if not self._bus_probe():
+            self.last_error = "accessibility bus is unavailable"
+            return False
         try:
             import gi
 

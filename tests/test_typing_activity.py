@@ -1,5 +1,6 @@
 import logging
 import unittest
+from unittest.mock import patch
 
 from mochi.typing_activity import (
     AtspiDeviceActivityBackend,
@@ -7,6 +8,7 @@ from mochi.typing_activity import (
     GnomeShellTypingPulseBackend,
     TypingActivityMonitor,
     TypingBurstDetector,
+    accessibility_bus_available,
 )
 
 
@@ -407,6 +409,67 @@ class DeviceCapabilityTests(unittest.TestCase):
         self.assertEqual(
             backend.last_error, "keyboard-monitor capability API is unavailable"
         )
+
+
+class AccessibilityBusGuardTests(unittest.TestCase):
+    """libatspi aborts the process when Atspi.init() finds no a11y bus."""
+
+    def test_backends_never_init_atspi_without_an_accessibility_bus(self) -> None:
+        for backend in (
+            AtspiDeviceActivityBackend(bus_probe=lambda: False),
+            AtspiTextActivityBackend(allow_text_changed=False, bus_probe=lambda: False),
+        ):
+            with self.subTest(backend=type(backend).__name__):
+                with patch("gi.require_version") as require_version:
+                    self.assertFalse(backend.start(lambda: None))
+                require_version.assert_not_called()
+                self.assertEqual(backend.last_error, "accessibility bus is unavailable")
+                self.assertFalse(backend.active)
+
+    def test_bus_address_from_the_environment_counts_as_available(self) -> None:
+        with patch.dict("os.environ", {"AT_SPI_BUS_ADDRESS": "unix:path=/tmp/a11y"}):
+            self.assertTrue(accessibility_bus_available(load_gio=self._unreachable))
+
+    def test_unreachable_bus_is_reported_unavailable(self) -> None:
+        with patch.dict("os.environ", {}, clear=True):
+            self.assertFalse(accessibility_bus_available(load_gio=self._unreachable))
+
+    def test_bus_that_returns_an_address_is_available(self) -> None:
+        class _Reply:
+            @staticmethod
+            def unpack():
+                return ("unix:path=/run/user/1000/at-spi/bus",)
+
+        class _Bus:
+            def __init__(self):
+                self.calls = []
+
+            def call_sync(self, *args):
+                self.calls.append(args)
+                return _Reply()
+
+        bus = _Bus()
+        gio = type(
+            "Gio",
+            (),
+            {
+                "BusType": type("BusType", (), {"SESSION": "session"}),
+                "DBusCallFlags": type("DBusCallFlags", (), {"NONE": 0}),
+                "bus_get_sync": staticmethod(lambda _type, _cancellable: bus),
+            },
+        )
+        glib = type(
+            "GLib",
+            (),
+            {"VariantType": type("VariantType", (), {"new": staticmethod(lambda sig: sig)})},
+        )
+        with patch.dict("os.environ", {}, clear=True):
+            self.assertTrue(accessibility_bus_available(load_gio=lambda: (gio, glib)))
+        self.assertEqual(bus.calls[0][:4], ("org.a11y.Bus", "/org/a11y/bus", "org.a11y.Bus", "GetAddress"))
+
+    @staticmethod
+    def _unreachable():
+        raise RuntimeError("org.a11y.Bus was not provided by any .service files")
 
 
 class BackendPrivacyTests(unittest.TestCase):

@@ -259,6 +259,11 @@ Fresh Fedora GNOME/Wayland/XWayland QA:
 - [ ] Edge roam keeps working at every level; strolls stay on the perimeter
 - [ ] Dragging, clicks, Focus, sleep, and the context menu still interrupt or block autonomous walks at every level
 
+## Accessibility Bus
+
+- [ ] Mochi starts and stays up in a session without `at-spi-bus-launcher` (no `dbind-ERROR` abort); typing reactions still work through the Cinnamon/GNOME helper
+- [ ] With the accessibility bus present and no helper, the AT-SPI typing fallback still starts
+
 ## Language / French
 
 - [ ] With `LANG=fr_CA.UTF-8` (or `MOCHI_LANGUAGE=fr`), startup intro, ambient speech, click/drag/feed speech, and Focus lines appear in French

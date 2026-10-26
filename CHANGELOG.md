@@ -61,6 +61,10 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
 
 ### Fixed
 
+- Mochi no longer crashes at startup on a desktop without the accessibility
+  bus (`at-spi-bus-launcher`). The AT-SPI library aborted the whole process
+  instead of failing, so Mochi now checks for the bus first and simply skips
+  the AT-SPI typing fallback when it is missing.
 - Mochi's sounds were silent on locales that write decimals with a comma,
   such as French (`fr_CA`). `pw-play` read his volume `0.6` as `0`. Sound cues
   now play at the chosen volume on every locale.
