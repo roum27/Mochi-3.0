@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 from uuid import uuid4
 
+from mochi.activity_level import DEFAULT_ACTIVITY_LEVEL, normalize_activity_level
 from mochi.care import BondState
 from mochi.update.constants import DEFAULT_UPDATE_CHANNEL, UPDATE_CHANNELS
 
@@ -117,6 +118,21 @@ class ConfigStore:
         data["edge_roam"] = bool(enabled)
         self._save(data)
         self._logger.debug("Edge roam: %s", bool(enabled))
+
+    def load_activity_level(self) -> str:
+        """Return how lively Mochi's autonomous idle cadence should be."""
+        try:
+            level = self._load()["activity_level"]
+        except (FileNotFoundError, KeyError, TypeError, ValueError, json.JSONDecodeError):
+            return DEFAULT_ACTIVITY_LEVEL
+        return normalize_activity_level(level)
+
+    def save_activity_level(self, level: str) -> None:
+        level = normalize_activity_level(level)
+        data = self._load_or_empty()
+        data["activity_level"] = level
+        self._save(data)
+        self._logger.debug("Activity level: %s", level)
 
 
     def load_update_checks_enabled(self) -> bool:

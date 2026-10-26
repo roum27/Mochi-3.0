@@ -24,6 +24,8 @@ the original is kept.
 
 - **Lives on your desktop:** idles, blinks, looks around, takes walks (or
   **Stay put** / **Edge roam**), naps, and can be picked up and dragged.
+  **Activity** in the right-click menu sets how often he wanders and plays on
+  his own: **Calm** (default), **Lively**, or **Energetic**.
 - **Reacts to you:** click chirps, bounce, squish, hearts, triple-click
   dialogue, and short, paced-out speech bubbles that are easy to ignore.
 - **Shares snacks:** **Feed** from the right-click menu. There is no hunger
@@ -129,7 +131,7 @@ not on `PATH`, use `~/.local/bin/mochi`.
 | Double-click | Heart emote |
 | Three quick clicks | Short playful dialogue |
 | Drag | Pick up and reposition Mochi |
-| Right-click | Bond, Feed, Focus, Pocket, size/audio, sleep/wake, movement, and app controls |
+| Right-click | Bond, Feed, Focus, Pocket, size/audio, sleep/wake, movement, Activity, and app controls |
 | `Ctrl + Alt + E` | Open the Emote Catalogue |
 | `Ctrl + Alt + Shift + M` | Open Mochi Lab developer controls |
 

@@ -247,6 +247,17 @@ Fresh Fedora GNOME/Wayland/XWayland QA:
 - [ ] Linux Mint Cinnamon: drag, right-click menu, and stay-on-top across workspaces work on the X11 path
 - [ ] `mochi-update` and in-app updating use the same exact-target transaction path
 
+## Activity Level
+
+- [ ] Right-click menu shows **Activity** after Stay put; clicking it cycles Calm → Lively → Energetic → Calm without closing the menu
+- [ ] The value label updates on each click and fits without clipping in English and French (Calme / Actif / Énergique)
+- [ ] On Energetic, Mochi strolls or emotes within ~15 s of closing the menu and keeps doing so every few tens of seconds
+- [ ] On Calm, cadence matches the previous release (roughly one short stroll every few minutes)
+- [ ] The chosen level survives quitting and relaunching Mochi
+- [ ] Stay put still stops all walking at every level; emotes continue
+- [ ] Edge roam keeps working at every level; strolls stay on the perimeter
+- [ ] Dragging, clicks, Focus, sleep, and the context menu still interrupt or block autonomous walks at every level
+
 ## Language / French
 
 - [ ] With `LANG=fr_CA.UTF-8` (or `MOCHI_LANGUAGE=fr`), startup intro, ambient speech, click/drag/feed speech, and Focus lines appear in French

@@ -8,6 +8,12 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
 
 ### Added
 
+- **Activity** in the right-click menu sets how lively Mochi is on his own.
+  Click it to cycle **Calm** (the default, unchanged from before), **Lively**,
+  and **Energetic**. Livelier levels give him more frequent, longer strolls
+  and more catalogue emotes. Speech pacing, Stay put, and Edge roam are
+  unchanged, and the choice is remembered across restarts.
+
 - Mochi can keep you company while a coding agent works. Point Claude Code's
   or Codex's hooks at the new `mochi-agent-signal` command and he sits with his
   mug beside a little monitor that scrolls code while the agent is busy, waves

@@ -7,6 +7,7 @@ from mochi.pocket_integration import PocketBuddyMixin
 from mochi.quick_start import QuickStartMixin
 from mochi.sound import SoundEvent
 
+from .activity_controls import ActivityLevelMixin
 from .agent_cowork import AgentCoworkMixin
 from .bond_meter import BondMeterMixin
 from .clicks import ClickBurstDetector
@@ -190,6 +191,7 @@ class PresenceBuddy(
     FedoraModeMixin,
     AgentCoworkMixin,
     TerminalCoworkMixin,
+    ActivityLevelMixin,
     EdgeRoamMixin,
     MusicDanceMixin,
     EmoteCatalogueMixin,
@@ -212,6 +214,7 @@ class PresenceX11Buddy(
     FedoraModeMixin,
     AgentCoworkMixin,
     TerminalCoworkMixin,
+    ActivityLevelMixin,
     EdgeRoamMixin,
     MusicDanceMixin,
     EmoteCatalogueMixin,

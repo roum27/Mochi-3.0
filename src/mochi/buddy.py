@@ -105,6 +105,7 @@ class Buddy(Gtk.DrawingArea):
     IDLE_ACTION_INTERVAL_SECONDS = (20, 45)
     IDLE_WALK_CHANCE = 0.10
     IDLE_CATALOGUE_EMOTE_CHANCE = 0.20
+    WALK_DISTANCE_PX = (60, 240)
     IDLE_BREATHING_ENABLED = False
     PREVIEW_ANIMATIONS = (
         "default",
@@ -1057,7 +1058,7 @@ class Buddy(Gtk.DrawingArea):
 
     def _start_walk(self) -> None:
         origin = self._placement.sync_from_window()
-        distance = random.randint(60, 240)
+        distance = random.randint(*self.WALK_DISTANCE_PX)
         angle = random.uniform(0, math.tau)
         target = self._placement.clamp_position(
             origin.x + round(math.cos(angle) * distance),

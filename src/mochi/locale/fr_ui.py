@@ -20,6 +20,14 @@ UI_FR: tuple[tuple[str, str], ...] = (
         "Keep Mochi's autonomous wandering along the screen edge",
         "Garder les promenades de Mochi le long du bord de l’écran",
     ),
+    ("Activity", "Activité"),
+    (
+        "Choose how often Mochi moves and plays on his own",
+        "Choisir à quelle fréquence Mochi bouge et joue tout seul",
+    ),
+    ("Calm", "Calme"),
+    ("Lively", "Actif"),
+    ("Energetic", "Énergique"),
     ("Focus with Mochi", "Se concentrer avec Mochi"),
     ("Start a gentle focus session with Mochi", "Commencer une douce séance de concentration avec Mochi"),
     ("Check for updates", "Rechercher des mises à jour"),
@@ -111,12 +119,14 @@ UI_FR: tuple[tuple[str, str], ...] = (
     ("You’re in Control", "C’est toi qui décides"),
     (
         "The right-click menu lets you sleep or wake Mochi, toggle Edge roam, use "
-        "Stay put to stop autonomous wandering, and close Mochi. More granular "
+        "Stay put to stop autonomous wandering, set his Activity from Calm to "
+        "Energetic, and close Mochi. More granular "
         "AmbiSense controls for speech bubbles, ambient reactions, and quiet mode "
         "currently live in Mochi Lab, which is a developer/testing surface.",
         "Le menu du clic droit te permet d’endormir ou de réveiller Mochi, "
         "d’activer « Longer les bords », d’utiliser « Rester sur place » pour "
-        "arrêter ses promenades, et de fermer Mochi. Les réglages plus fins "
+        "arrêter ses promenades, de régler son « Activité » de Calme à "
+        "Énergique, et de fermer Mochi. Les réglages plus fins "
         "d’AmbiSense (bulles, réactions ambiantes, mode silencieux) se trouvent "
         "pour l’instant dans le Mochi Lab, un espace pour les développeurs et les tests.",
     ),
