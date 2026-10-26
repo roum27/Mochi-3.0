@@ -266,6 +266,7 @@ Fresh Fedora GNOME/Wayland/XWayland QA:
 - [ ] Level-up and new-emote cards show French titles and the translated emote name
 - [ ] `MOCHI_LANGUAGE=en` on a French system restores all-English copy
 - [ ] Speech still respects speech_enabled, quiet mode, and presentation priority in French
+- [ ] With `LANG=fr_CA.UTF-8`, the left-click chirp, launch, menu, and eating sounds are audible (pw-play volume is not parsed as 0)
 
 ## Cinnamon Helper
 

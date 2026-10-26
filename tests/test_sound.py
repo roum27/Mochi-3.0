@@ -1,8 +1,9 @@
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
-from mochi.sound import SoundEvent, SoundManager
+from mochi.sound import CommandAudioBackend, SoundEvent, SoundManager
 
 
 class FakeBackend:
@@ -11,6 +12,35 @@ class FakeBackend:
 
     def play(self, path: Path, volume: float) -> None:
         self.calls.append((path, volume))
+
+
+class CommandAudioBackendTests(unittest.TestCase):
+    def _launch(self, kind: str, environ: dict[str, str]) -> tuple[tuple, dict]:
+        backend = CommandAudioBackend(f"/usr/bin/{kind}", kind)
+        with (
+            patch.dict("mochi.sound.os.environ", environ, clear=True),
+            patch("mochi.sound.subprocess.Popen") as popen,
+        ):
+            backend.play(Path("/tmp/chirp.ogg"), 0.6)
+        args, kwargs = popen.call_args
+        return args[0], kwargs["env"]
+
+    def test_pw_play_parses_volume_with_c_numerics_on_a_french_locale(self) -> None:
+        # pw-play reads --volume with the locale's decimal separator, so on
+        # fr_CA "0.6" silently became 0 and Mochi was mute.
+        command, env = self._launch(
+            "pw-play",
+            {"LANG": "fr_CA.UTF-8", "LC_ALL": "fr_CA.UTF-8", "LC_NUMERIC": "fr_CA.UTF-8"},
+        )
+        self.assertEqual(command, ("/usr/bin/pw-play", "--volume", "0.6", "/tmp/chirp.ogg"))
+        self.assertEqual(env["LC_NUMERIC"], "C")
+        self.assertNotIn("LC_ALL", env)
+        self.assertEqual(env["LANG"], "fr_CA.UTF-8")
+
+    def test_paplay_keeps_its_integer_volume(self) -> None:
+        command, env = self._launch("paplay", {"LANG": "fr_CA.UTF-8"})
+        self.assertEqual(command, ("/usr/bin/paplay", "--volume=39322", "/tmp/chirp.ogg"))
+        self.assertEqual(env["LC_NUMERIC"], "C")
 
 
 class SoundManagerTests(unittest.TestCase):

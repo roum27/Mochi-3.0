@@ -56,6 +56,12 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
   missing. The install summary now points at your applications menu instead
   of the GNOME app grid.
 
+### Fixed
+
+- Mochi's sounds were silent on locales that write decimals with a comma,
+  such as French (`fr_CA`). `pw-play` read his volume `0.6` as `0`. Sound cues
+  now play at the chosen volume on every locale.
+
 ## 0.4.1 — Stabilization & Portability
 
 Mochi notices where your attention goes, and stays animated and updatable

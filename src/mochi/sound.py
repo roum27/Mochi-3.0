@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import logging
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -57,11 +58,17 @@ class CommandAudioBackend:
             command = (self.executable, f"--volume={pulse_volume}", str(path))
         else:
             raise ValueError(f"Unsupported audio backend: {self.kind}")
+        # pw-play parses --volume with the locale's decimal separator, so on a
+        # comma locale such as fr_CA "0.6" reads as 0 and the cue is silent.
+        env = dict(os.environ)
+        env.pop("LC_ALL", None)
+        env["LC_NUMERIC"] = "C"
         subprocess.Popen(
             command,
             stdin=subprocess.DEVNULL,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
+            env=env,
         )
 
 
