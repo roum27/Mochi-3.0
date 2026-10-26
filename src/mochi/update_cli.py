@@ -24,8 +24,8 @@ def build_parser() -> argparse.ArgumentParser:
         "--channel",
         choices=UPDATE_CHANNELS,
         help=(
-            "remember which builds to follow: 'release' (default) for published "
-            "releases, or 'main' for every merged change (alpha testers)"
+            "remember which builds to follow: 'main' (default) for every merged "
+            "change, or 'release' for published releases only"
         ),
     )
     return parser

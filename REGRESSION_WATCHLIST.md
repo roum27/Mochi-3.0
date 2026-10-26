@@ -246,6 +246,7 @@ Fresh Fedora GNOME/Wayland/XWayland QA:
 - [ ] Linux Mint Cinnamon: `./install.sh` lists only missing apt packages, never runs `sudo` when nothing is missing, and Mochi launches from the Cinnamon menu
 - [ ] Linux Mint Cinnamon: drag, right-click menu, and stay-on-top across workspaces work on the X11 path
 - [ ] `mochi-update` and in-app updating use the same exact-target transaction path
+- [ ] With no saved channel, **Check for updates** offers the newest `main` commit of `roum27/Mochi-3.0`; `mochi-update --channel release` switches to releases only
 
 ## Activity Level
 

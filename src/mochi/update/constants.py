@@ -3,8 +3,9 @@
 OFFICIAL_REPOSITORY = "roum27/Mochi-3.0"
 
 # "release" follows GitHub's latest published (non-prerelease) release; "main"
-# follows every merged change and is meant for alpha testers.
+# follows every merged change. This fork ships from main, so main is the
+# default and "release" is opt-in.
 RELEASE_CHANNEL = "release"
 MAIN_CHANNEL = "main"
 UPDATE_CHANNELS = (RELEASE_CHANNEL, MAIN_CHANNEL)
-DEFAULT_UPDATE_CHANNEL = RELEASE_CHANNEL
+DEFAULT_UPDATE_CHANNEL = MAIN_CHANNEL

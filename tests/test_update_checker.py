@@ -246,10 +246,19 @@ def test_dismissed_commit_is_not_reannounced_but_newer_commit_is(tmp_path: Path)
     assert newer.announce is True
 
 
-def test_release_channel_is_the_default_and_targets_the_latest_release(
-    tmp_path: Path,
-) -> None:
-    checker, _config, source = _checker(tmp_path, channel=None)
+def test_main_channel_is_the_default(tmp_path: Path) -> None:
+    checker, config, source = _checker(tmp_path, channel=None)
+
+    result = checker.check(manual=True, now=1_000.0)
+
+    assert config.load_update_channel() == "main"
+    assert result.target is not None
+    assert result.target.metadata.channel == "main"
+    assert source.calls[0] == "resolve"
+
+
+def test_release_channel_targets_the_latest_release(tmp_path: Path) -> None:
+    checker, _config, source = _checker(tmp_path, channel="release")
 
     result = checker.check(manual=True, now=1_000.0)
 

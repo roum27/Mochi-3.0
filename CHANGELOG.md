@@ -40,6 +40,9 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
 
 ### Changed
 
+- **Check for updates** now follows every change on this fork's `main` branch
+  by default, so in-app updates work without published GitHub Releases.
+  `mochi-update --channel release` switches back to releases only.
 - Slimmed the repository for Mochi 3.0. Removed:
   - the original project's website, Artist Kit, contribution templates, and
     funding links;

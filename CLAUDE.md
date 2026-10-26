@@ -105,8 +105,8 @@ Fork additions, one feature per commit with a spec and plan in `docs/superpowers
 
 - **Never import anything from `src/mochi/update/`** — `mochi.i18n` included. The bootstrap copies that package on its own (`test_real_bootstrap_package_imports_without_rest_of_mochi`). That is why the updater window stays English.
 - **Update source:** at the maintainer's request (2026-10-25), `OFFICIAL_REPOSITORY` in `src/mochi/update/constants.py` is `roum27/Mochi-3.0`. Updates must never come from upstream again; do not reintroduce `miflow13/mochi-desktop` anywhere in the update path.
-  - The updater uses unauthenticated GitHub API calls, so it only works once the fork is public.
-  - The default `release` channel needs a published GitHub release on the fork (a tag, not a prerelease). Until then, checks fail quietly; `mochi-update --channel main` follows every push to `main`.
+  - The updater uses unauthenticated GitHub API calls. The fork has been public since 2026-10-25.
+  - At the maintainer's request, the default channel is `main` (`DEFAULT_UPDATE_CHANNEL`): every push to `main` reaches users through **Check for updates**, so only push what is ready. `release` is opt-in and needs a published GitHub release (a tag, not a prerelease).
 
 ### The Cinnamon helper
 

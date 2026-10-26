@@ -109,12 +109,13 @@ Mochi Lab developer tools and the updater window stay in English.
 `mochi-update`, or **Check for updates** in the right-click menu, checks this
 repository and nothing else. No GitHub account or sign-in is needed.
 
-By default it follows published GitHub Releases. To follow every change pushed
-to `main` instead, switch channels once:
+By default it follows every change pushed to `main`, so the button finds each
+new version as soon as it is on GitHub. To follow only published GitHub
+Releases instead, switch channels once:
 
 ```bash
-mochi-update --channel main     # every change on main
-mochi-update --channel release  # published releases (default)
+mochi-update --channel release  # published releases only
+mochi-update --channel main     # every change on main (default)
 ```
 
 An update installs the exact commit it found, keeps the previous runtime as a
