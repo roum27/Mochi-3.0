@@ -67,10 +67,13 @@ or screen content. See [AmbiSense](docs/ambisense.md).
 ## Install
 
 ```bash
-git clone git@github.com:roum27/Mochi-3.0.git
-cd Mochi-3.0
-./install.sh
+git clone https://github.com/roum27/Mochi-3.0.git ~/Mochi-3.0
+cd ~/Mochi-3.0 && ./install.sh
 ```
+
+Mochi installs per user. To give another account on the same computer its own
+Mochi, run the same commands in that account's desktop session. No GitHub
+account is needed.
 
 The installer:
 
@@ -104,12 +107,10 @@ Mochi Lab developer tools and the updater window stay in English.
 ### Updates
 
 `mochi-update`, or **Check for updates** in the right-click menu, checks this
-repository only. Two conditions apply:
+repository and nothing else. No GitHub account or sign-in is needed.
 
-- **The repository must be public**, because the updater does not sign in to
-  GitHub.
-- **By default it follows published GitHub Releases.** To follow every push to
-  `main`, switch channels:
+By default it follows published GitHub Releases. To follow every change pushed
+to `main` instead, switch channels once:
 
 ```bash
 mochi-update --channel main     # every change on main
@@ -118,18 +119,13 @@ mochi-update --channel release  # published releases (default)
 
 An update installs the exact commit it found, keeps the previous runtime as a
 backup until the new one starts, and never resets your bond, unlocks, Pocket, or
-settings.
+settings. Run it in each user account that has Mochi installed.
 
-#### Updating by hand (private repository or another user account)
+#### Updating by hand
 
-While the repository is private, `mochi-update` cannot reach it. Update with Git
-instead. Run this in each user account's own desktop session, because Mochi
-installs per user:
-
-Copy and paste this whole block into a terminal:
+You can also update with Git. Copy and paste this block into a terminal:
 
 ```bash
-git config --global credential.helper store
 rm -rf ~/Mochi-3.0
 git clone https://github.com/roum27/Mochi-3.0.git ~/Mochi-3.0
 cd ~/Mochi-3.0 && ./install.sh
@@ -138,34 +134,6 @@ cd ~/Mochi-3.0 && ./install.sh
 Then close Mochi (right-click → **Close**) and launch him again from the
 applications menu. If you kept an earlier clone, `git pull` inside it followed
 by `./install.sh` works too.
-
-The simplest way to sign in is through the browser with the GitHub CLI. Do this
-once per user account, before the block above, and leave out its first line:
-
-```bash
-sudo apt install gh
-gh auth login
-```
-
-Answer **GitHub.com**, **HTTPS**, **Yes** (authenticate Git with your GitHub
-credentials), and **Login with a web browser**, then type the 8-character code
-on the page that opens.
-
-Without `gh`, Git asks for a username and a password. GitHub no longer accepts
-your account password there, and being signed in to GitHub in a browser is not
-enough:
-
-- **Username:** your GitHub username.
-- **Password:** a personal access token, not your GitHub password. Create one
-  under **GitHub → Settings → Developer settings → Personal access tokens →
-  Fine-grained tokens**, limited to this repository with **Contents:
-  Read-only**.
-
-The first line of the block saves the token so you do not paste it on every
-update. It is stored in plain text in `~/.git-credentials`. To have Git forget
-it after an hour instead, replace that line with
-`git config --global credential.helper 'cache --timeout=3600'`. You can revoke the token on GitHub at any
-time.
 
 Your bond, unlocks, Pocket, and settings live in `~/.config/mochi` and
 `~/.local/share`, not in the clone, so removing the clone loses nothing.
