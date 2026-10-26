@@ -66,9 +66,13 @@ or screen content. See [AmbiSense](docs/ambisense.md).
 
 ### Talk to Mochi (optional, Ollama)
 
-**Talk to Mochi...** in the right-click menu sends what you type to an
-[Ollama](https://ollama.com) server of your choice and shows the answer in
-Mochi's bubble. Nothing is sent until you write to him. Configure it in
+**Talk to Mochi...** in the right-click menu, or holding the mouse on Mochi for
+1.5 seconds, opens a chat window. What you type goes to an
+[Ollama](https://ollama.com) server of your choice; the answer stays in the
+window, ready to copy, until you close it. Mochi is set up as a small text
+assistant: start with `traduis:` / `translate:` to translate or `corrige:` /
+`fix:` to fix spelling. Enter sends, Shift+Enter adds a line. Nothing is sent
+until you write to him. Configure it in
 `~/.config/mochi/ollama/`:
 
 - `config.json`: `{"host": "http://192.168.1.10:11434", "model": "llama3.2:3b"}`
@@ -165,6 +169,7 @@ not on `PATH`, use `~/.local/bin/mochi`.
 | Double-click | Heart emote |
 | Three quick clicks | Short playful dialogue |
 | Drag | Pick up and reposition Mochi |
+| Hold 1.5 s | Open Talk to Mochi (Ollama) |
 | Right-click | Bond, Feed, Talk to Mochi, Focus, Pocket, size/audio, sleep/wake, movement, Activity, and app controls |
 | `Ctrl + Alt + E` | Open the Emote Catalogue |
 | `Ctrl + Alt + Shift + M` | Open Mochi Lab developer controls |

@@ -76,7 +76,7 @@ def test_malformed_response_raises_ollama_error(tmp_path) -> None:
 
 def test_reply_cleanup_strips_thinking_and_caps_length() -> None:
     assert clean_reply("<think>hmm</think>\n  coucou ") == "coucou"
-    long = clean_reply("a" * 1000)
+    long = clean_reply("a" * 5000)
     assert len(long) == ollama_chat.MAX_REPLY_CHARS
     assert long.endswith("…")
 

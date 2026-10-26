@@ -8,14 +8,17 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
 
 ### Added
 
-- **Talk to Mochi...** in the right-click menu opens a one-line prompt. Type a
-  message, press Enter, and Mochi answers in his speech bubble using an
+- **Talk to Mochi...** in the right-click menu, or holding the mouse on Mochi
+  for 1.5 seconds, opens a small chat window backed by an
   [Ollama](https://ollama.com) server you point him at in
-  `~/.config/mochi/ollama/config.json` (`host` and `model`). His identity is
-  the editable `system.md` next to it; he remembers recent exchanges in
-  `history.json` and distills older ones into `memory.md` automatically.
-  Mochi only contacts that server when you send a message; if it can't be
-  reached he says so and nothing else changes.
+  `~/.config/mochi/ollama/config.json` (`host` and `model`). Mochi acts as a
+  small text assistant: translate (`traduis:`), fix spelling (`corrige:`),
+  rephrase, or just chat. The reply stays in the window until you close it,
+  with a **Copy** button. Enter sends, Shift+Enter adds a line. His identity
+  is the editable `system.md` next to the config; he remembers recent
+  exchanges in `history.json` and distills older ones into `memory.md`
+  automatically. Mochi only contacts that server when you send a message; if
+  it can't be reached he says so and nothing else changes.
 
 - **Activity** in the right-click menu sets how lively Mochi is on his own.
   Click it to cycle **Calm** (the default, unchanged from before), **Lively**,

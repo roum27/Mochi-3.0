@@ -262,8 +262,13 @@ Fresh Fedora GNOME/Wayland/XWayland QA:
 ## Talk to Mochi (Ollama)
 
 - [ ] Right-click menu shows **Talk to Mochi...** (Parler à Mochi...) before Sleep, without clipping
-- [ ] It opens a small window with a focused one-line entry; Enter sends and closes it, Escape closes it
-- [ ] Mochi shows "hmm..." while waiting, then the reply in his bubble; long replies stay readable and wrap
+- [ ] It opens the chat window with the cursor in the input box
+- [ ] Holding the left button on Mochi for 1.5 s without moving opens the same window; releasing does not chirp or count as a click
+- [ ] A short click and a drag still behave as before and never open the window
+- [ ] Enter sends, Shift+Enter adds a new line, Escape closes the window
+- [ ] Mochi shows "hmm..." in his bubble and the window while waiting; the reply then fills the window and stays until it is closed
+- [ ] The reply can be selected with the mouse, and **Copy** puts it on the clipboard (label turns to Copied!)
+- [ ] Closing the window before the reply arrives shows a shortened reply in Mochi's bubble instead; reopening shows the full last reply
 - [ ] Mochi stays draggable, clickable and animated while a reply is pending
 - [ ] With the server unreachable, Mochi says his head is in the clouds and nothing else breaks
 - [ ] After 20+ exchanges, `memory.md` gains facts and `history.json` shrinks
