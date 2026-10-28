@@ -12,6 +12,7 @@ from .agent_cowork import AgentCoworkMixin
 from .bond_meter import BondMeterMixin
 from .clicks import ClickBurstDetector
 from .curiosity import ActiveWindowCuriosityMixin
+from .droppings import DroppingsMixin
 from .edge_roam_controls import EdgeRoamMixin
 from .engine import SpeechText, speech_display_seconds
 from .emote_catalogue import EmoteCatalogueMixin
@@ -193,6 +194,7 @@ class PresenceBuddy(
     FedoraModeMixin,
     AgentCoworkMixin,
     TerminalCoworkMixin,
+    DroppingsMixin,
     ActivityLevelMixin,
     EdgeRoamMixin,
     MusicDanceMixin,
@@ -217,6 +219,7 @@ class PresenceX11Buddy(
     FedoraModeMixin,
     AgentCoworkMixin,
     TerminalCoworkMixin,
+    DroppingsMixin,
     ActivityLevelMixin,
     EdgeRoamMixin,
     MusicDanceMixin,

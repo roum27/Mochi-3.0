@@ -48,7 +48,7 @@ Mochi is a pet. Once in a while, a pet leaves a little poop behind. This adds a 
   - `destroy()` removes the fade source and destroys the window. It is idempotent.
 - **`DroppingsMixin`** — owns the feature.
   - State: `_droppings_enabled`, `_droppings` (live windows), `_dropping_schedule`, `_dropping_source_id`, `_droppings_switch`.
-  - `_build_context_menu` loads `droppings_enabled` and registers a `"little-poops"` switch row after `"edge-roam"`, when supported.
+  - `_build_context_menu` loads `droppings_enabled` and registers a `"little-poops"` switch row after `"activity"`, when supported. The menu reads Sleep → Edge roam → Stay put → Activity → Little poops.
   - After `__init__`, when supported and enabled, it starts the schedule and one recurring 30 s `GLib.timeout_add_seconds` check.
   - The check leaves a poop when the schedule is due and `_can_leave_dropping()` holds:
     - enabled, fewer than `MAX_DROPPINGS`, not shutting down;
@@ -60,7 +60,7 @@ Mochi is a pet. Once in a while, a pet leaves a little poop behind. This adds a 
   - Toggling the switch saves the choice. Off: stop the timer, stop the schedule, destroy all poops. On: start both.
   - `shutdown_presence` stops the timer and destroys every poop (Manual rule 4).
   - Mochi Lab gets a **Leave a poop now** button (English, like the other Lab controls) that skips the schedule but still respects the cap and the eligibility rules.
-- Composition: the mixin sits right before `EdgeRoamMixin` in both `PresenceBuddy` classes.
+- Composition: the mixin sits right before `ActivityLevelMixin` in both `PresenceBuddy` classes, so the `"activity"` row already exists when it registers its own.
 
 ### `ConfigStore`
 
@@ -93,5 +93,5 @@ Mochi is a pet. Once in a while, a pet leaves a little poop behind. This adds a 
   - the mixin leaves a poop only when due and eligible, respects the cap, is blocked by sleep, drag, the menu and Focus;
   - cleaning removes it from the list; toggling off destroys all and stops the timer; shutdown destroys all;
   - no timer and no row in preview mode or with layer shell;
-  - the mixin is in both buddy MROs, ahead of `EdgeRoamMixin`.
+  - the mixin is in both buddy MROs, ahead of `ActivityLevelMixin`.
 - `tests/test_i18n.py` covers the new `tr()` literals automatically.

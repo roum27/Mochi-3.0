@@ -259,6 +259,19 @@ Fresh Fedora GNOME/Wayland/XWayland QA:
 - [ ] Edge roam keeps working at every level; strolls stay on the perimeter
 - [ ] Dragging, clicks, Focus, sleep, and the context menu still interrupt or block autonomous walks at every level
 
+## Little Poops
+
+- [ ] Right-click menu shows **Little poops** after Activity, switched on by default; the label fits in English and French (Petits cacas)
+- [ ] Mochi Lab → **Leave a poop now** puts a small poop beside Mochi's feet, not over him, with no flash at the top-left corner
+- [ ] Walking or dragging Mochi away leaves the poop where it was
+- [ ] One click on a poop fades it out and removes it; clicks on Mochi still work right next to it
+- [ ] With three poops on screen, **Leave a poop now** adds no fourth
+- [ ] Near a screen edge the poop appears on the other side of Mochi and stays on the monitor
+- [ ] Turning **Little poops** off removes every poop at once; the choice survives a restart
+- [ ] Quitting Mochi removes every poop
+- [ ] No poop appears while Mochi sleeps, is held or dragged, the menu is open, or Focus is running
+- [ ] Poops do not show in the taskbar or Alt+Tab, and stay above normal windows
+
 ## Talk to Mochi (Ollama)
 
 - [ ] Right-click menu shows **Talk to Mochi...** (Parler à Mochi...) before Sleep, without clipping

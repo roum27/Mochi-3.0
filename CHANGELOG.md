@@ -8,6 +8,12 @@ Mochi is still in early public alpha, so behavior, configuration, and compatibil
 
 ### Added
 
+- **Little poops.** Every 15–40 minutes, while he is awake and free, Mochi
+  may leave a tiny poop on the screen beside him. Click it to clean it up.
+  At most three wait on screen at once, they never affect his mood or your
+  bond, and they vanish when Mochi quits. Turn them off with **Little poops**
+  in the right-click menu.
+
 - **Talk to Mochi...** in the right-click menu, or holding the mouse on Mochi
   for 1.5 seconds, opens a small chat window backed by an
   [Ollama](https://ollama.com) server you point him at in

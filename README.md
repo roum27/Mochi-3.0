@@ -30,6 +30,9 @@ the original is kept.
   dialogue, and short, paced-out speech bubbles that are easy to ignore.
 - **Shares snacks:** **Feed** from the right-click menu. There is no hunger
   meter and no penalty for being away.
+- **Leaves little poops:** now and then a tiny poop appears beside him on
+  the screen. Click it to clean it up. It never matters if you don't; turn
+  them off with **Little poops** in the right-click menu.
 - **Bonds without pressure:** a persistent, non-decaying **Bond Level** grows
   from typing together, feeding, and focus time. There are no streaks and no
   missed-day penalties.
@@ -169,8 +172,9 @@ not on `PATH`, use `~/.local/bin/mochi`.
 | Double-click | Heart emote |
 | Three quick clicks | Short playful dialogue |
 | Drag | Pick up and reposition Mochi |
+| Click a poop | Clean it up |
 | Hold 1.5 s | Open Talk to Mochi (Ollama) |
-| Right-click | Bond, Feed, Talk to Mochi, Focus, Pocket, size/audio, sleep/wake, movement, Activity, and app controls |
+| Right-click | Bond, Feed, Talk to Mochi, Focus, Pocket, size/audio, sleep/wake, movement, Activity, Little poops, and app controls |
 | `Ctrl + Alt + E` | Open the Emote Catalogue |
 | `Ctrl + Alt + Shift + M` | Open Mochi Lab developer controls |
 

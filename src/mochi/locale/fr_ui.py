@@ -34,6 +34,11 @@ UI_FR: tuple[tuple[str, str], ...] = (
     ("Calm", "Calme"),
     ("Lively", "Actif"),
     ("Energetic", "Énergique"),
+    ("Little poops", "Petits cacas"),
+    (
+        "Mochi sometimes leaves a little poop on the screen. Click it to clean up.",
+        "Mochi laisse parfois un petit caca à l’écran. Clique dessus pour nettoyer.",
+    ),
     ("Focus with Mochi", "Se concentrer avec Mochi"),
     ("Start a gentle focus session with Mochi", "Commencer une douce séance de concentration avec Mochi"),
     ("Check for updates", "Rechercher des mises à jour"),

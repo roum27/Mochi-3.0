@@ -2,16 +2,23 @@
 
 from __future__ import annotations
 
+from types import SimpleNamespace
 import unittest
+from unittest.mock import Mock, patch
 
 import cairo
 
 from mochi.droppings import (
     DROPPING_INTERVAL_SECONDS,
+    MAX_DROPPINGS,
     DroppingSchedule,
     draw_dropping,
     dropping_position,
 )
+from mochi.presence.activity_controls import ActivityLevelMixin
+from mochi.presence.click_dialogue import PresenceBuddy, PresenceX11Buddy
+from mochi.presence.droppings import DroppingsMixin
+from mochi.state import MochiState
 
 
 class _Clock:
@@ -156,6 +163,197 @@ class DrawDroppingTests(unittest.TestCase):
         self.assertGreater(alpha(size // 2, int(size * 0.75)), 200)
         self.assertEqual(alpha(0, 0), 0)
         self.assertEqual(alpha(size - 1, 0), 0)
+
+
+class _FakeDropping:
+    def __init__(self, *, owner, on_cleaned) -> None:
+        self.owner = owner
+        self.on_cleaned = on_cleaned
+        self.shown_at = None
+        self.destroyed = False
+
+    def show_at(self, x, y) -> None:
+        self.shown_at = (x, y)
+
+    def destroy(self) -> None:
+        self.destroyed = True
+
+    def clean(self) -> None:
+        self.destroy()
+        self.on_cleaned(self)
+
+
+class _Base:
+    def __init__(self, *, preview_mode=False, layer_shell=False, enabled=True) -> None:
+        self._preview_mode = preview_mode
+        self._placement = SimpleNamespace(layer_shell_enabled=layer_shell)
+        self._config = SimpleNamespace(
+            load_droppings_enabled=Mock(return_value=enabled),
+            save_droppings_enabled=Mock(),
+        )
+        self._logger = Mock()
+        self._window = object()
+        self.state = SimpleNamespace(current=MochiState.IDLE)
+        self._context_menu_open = False
+        self._focus_session = None
+        self._presence_shutting_down = False
+        self.registered_rows = []
+        self.shutdown_called = False
+        self._context_menu = self._build_context_menu()
+
+    def _build_context_menu(self):
+        return "menu"
+
+    def _register_context_menu_row(self, row_id, widget, **kwargs):
+        self.registered_rows.append((row_id, kwargs))
+
+    def shutdown_presence(self) -> None:
+        self.shutdown_called = True
+
+
+class _Harness(DroppingsMixin, _Base):
+    def _make_droppings_row(self):
+        return "row", Mock()
+
+    def _dropping_anchor(self):
+        return (400, 500, 600, (0, 0, 1000, 800), 34)
+
+
+class _Due:
+    def __init__(self) -> None:
+        self.due = True
+        self.starts = 0
+        self.stops = 0
+
+    def start(self) -> None:
+        self.starts += 1
+
+    def stop(self) -> None:
+        self.stops += 1
+
+    def is_due(self) -> bool:
+        return self.due
+
+
+def _harness(**kwargs):
+    glib = Mock()
+    glib.timeout_add_seconds.return_value = 77
+    glib.SOURCE_CONTINUE = True
+    with patch("mochi.presence.droppings.GLib", glib):
+        harness = _Harness(**kwargs)
+    harness._dropping_factory = _FakeDropping
+    harness._dropping_schedule = _Due()
+    return harness, glib
+
+
+class DroppingsMixinTests(unittest.TestCase):
+    def test_registers_row_after_activity_and_starts_one_timer(self) -> None:
+        harness, glib = _harness()
+        self.assertEqual(harness.registered_rows, [("little-poops", {"after": "activity"})])
+        glib.timeout_add_seconds.assert_called_once()
+        self.assertEqual(harness._dropping_source_id, 77)
+
+    def test_disabled_in_config_starts_no_timer(self) -> None:
+        harness, glib = _harness(enabled=False)
+        glib.timeout_add_seconds.assert_not_called()
+        self.assertIsNone(harness._dropping_source_id)
+
+    def test_unsupported_paths_have_no_row_and_no_timer(self) -> None:
+        for kwargs in ({"preview_mode": True}, {"layer_shell": True}):
+            harness, glib = _harness(**kwargs)
+            self.assertEqual(harness.registered_rows, [])
+            glib.timeout_add_seconds.assert_not_called()
+            self.assertFalse(harness._leave_dropping())
+
+    def test_leaves_a_poop_beside_mochi_when_due(self) -> None:
+        harness, _glib = _harness()
+        with patch("mochi.presence.droppings.random.choice", return_value="right"):
+            harness._on_dropping_check()
+
+        self.assertEqual(len(harness._droppings), 1)
+        dropping = harness._droppings[0]
+        self.assertEqual(dropping.shown_at, (500, 566))
+        self.assertIs(dropping.owner, harness._window)
+        self.assertEqual(harness._dropping_schedule.starts, 1)
+
+    def test_nothing_happens_when_not_due(self) -> None:
+        harness, _glib = _harness()
+        harness._dropping_schedule.due = False
+        harness._on_dropping_check()
+        self.assertEqual(harness._droppings, [])
+
+    def test_busy_mochi_waits_and_keeps_the_due_time(self) -> None:
+        blockers = (
+            lambda h: setattr(h.state, "current", MochiState.SLEEPING),
+            lambda h: setattr(h.state, "current", MochiState.DRAGGED),
+            lambda h: setattr(h.state, "current", MochiState.EATING),
+            lambda h: setattr(h, "_context_menu_open", True),
+            lambda h: setattr(h, "_focus_session", object()),
+            lambda h: setattr(h, "_presence_shutting_down", True),
+        )
+        for block in blockers:
+            harness, _glib = _harness()
+            block(harness)
+            harness._on_dropping_check()
+            self.assertEqual(harness._droppings, [])
+            self.assertEqual(harness._dropping_schedule.starts, 0)
+
+    def test_walking_mochi_can_leave_one(self) -> None:
+        harness, _glib = _harness()
+        harness.state.current = MochiState.WALKING
+        self.assertTrue(harness._leave_dropping())
+
+    def test_cap_limits_poops_on_screen(self) -> None:
+        harness, _glib = _harness()
+        for _ in range(MAX_DROPPINGS + 2):
+            harness._on_dropping_check()
+        self.assertEqual(len(harness._droppings), MAX_DROPPINGS)
+
+    def test_cleaning_frees_a_slot(self) -> None:
+        harness, _glib = _harness()
+        for _ in range(MAX_DROPPINGS):
+            harness._leave_dropping()
+        harness._droppings[0].clean()
+        self.assertEqual(len(harness._droppings), MAX_DROPPINGS - 1)
+        self.assertTrue(harness._leave_dropping())
+
+    def test_toggle_off_removes_everything_and_on_restarts(self) -> None:
+        harness, _glib = _harness()
+        harness._leave_dropping()
+        harness._leave_dropping()
+        droppings = list(harness._droppings)
+
+        glib = Mock()
+        glib.timeout_add_seconds.return_value = 88
+        with patch("mochi.presence.droppings.GLib", glib):
+            harness._toggle_droppings()
+            glib.source_remove.assert_called_once_with(77)
+            self.assertIsNone(harness._dropping_source_id)
+            self.assertEqual(harness._droppings, [])
+            self.assertTrue(all(d.destroyed for d in droppings))
+            harness._config.save_droppings_enabled.assert_called_with(False)
+
+            harness._toggle_droppings()
+            self.assertEqual(harness._dropping_source_id, 88)
+            harness._config.save_droppings_enabled.assert_called_with(True)
+
+    def test_shutdown_removes_timer_and_poops(self) -> None:
+        harness, _glib = _harness()
+        harness._leave_dropping()
+        dropping = harness._droppings[0]
+        glib = Mock()
+        with patch("mochi.presence.droppings.GLib", glib):
+            harness.shutdown_presence()
+        glib.source_remove.assert_called_once_with(77)
+        self.assertTrue(dropping.destroyed)
+        self.assertEqual(harness._droppings, [])
+        self.assertTrue(harness.shutdown_called)
+
+    def test_mixin_is_composed_before_activity_in_both_buddies(self) -> None:
+        for buddy in (PresenceBuddy, PresenceX11Buddy):
+            mro = buddy.__mro__
+            self.assertIn(DroppingsMixin, mro)
+            self.assertLess(mro.index(DroppingsMixin), mro.index(ActivityLevelMixin))
 
 
 if __name__ == "__main__":
