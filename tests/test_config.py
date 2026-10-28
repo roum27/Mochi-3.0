@@ -70,6 +70,21 @@ class ConfigStoreTests(unittest.TestCase):
             store.save_edge_roam(False)
             self.assertFalse(store.load_edge_roam())
 
+    def test_droppings_default_on_and_round_trip(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            store = ConfigStore(Path(directory) / "config.json")
+            self.assertTrue(store.load_droppings_enabled())
+            store.save_droppings_enabled(False)
+            self.assertFalse(store.load_droppings_enabled())
+            store.save_droppings_enabled(True)
+            self.assertTrue(store.load_droppings_enabled())
+
+    def test_invalid_droppings_value_falls_back_on(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "config.json"
+            path.write_text('{"droppings_enabled": "nope"}', encoding="utf-8")
+            self.assertTrue(ConfigStore(path).load_droppings_enabled())
+
     def test_startup_marker_distinguishes_first_launch(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             store = ConfigStore(Path(directory) / "config.json")

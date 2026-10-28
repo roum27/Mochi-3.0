@@ -119,6 +119,20 @@ class ConfigStore:
         self._save(data)
         self._logger.debug("Edge roam: %s", bool(enabled))
 
+    def load_droppings_enabled(self) -> bool:
+        """Return whether Mochi may leave little poops on the screen."""
+        try:
+            enabled = self._load()["droppings_enabled"]
+        except (FileNotFoundError, KeyError, TypeError, ValueError, json.JSONDecodeError):
+            return True
+        return enabled if isinstance(enabled, bool) else True
+
+    def save_droppings_enabled(self, enabled: bool) -> None:
+        data = self._load_or_empty()
+        data["droppings_enabled"] = bool(enabled)
+        self._save(data)
+        self._logger.debug("Little poops: %s", bool(enabled))
+
     def load_activity_level(self) -> str:
         """Return how lively Mochi's autonomous idle cadence should be."""
         try:
